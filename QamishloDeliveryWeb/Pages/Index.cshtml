@@ -1,0 +1,1800 @@
+﻿@page
+@model QamishloDeliveryWeb.Pages.IndexModel
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        Qamishlo Delivery
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #101010,
+                    #202020
+                );
+
+            color: white;
+
+            min-height: 100vh;
+        }
+
+
+        .container {
+            width: 100%;
+
+            max-width: 650px;
+
+            margin: auto;
+
+            padding: 25px 15px 50px;
+        }
+
+
+        /* ================================================= */
+        /* HEADER */
+        /* ================================================= */
+
+        .header {
+            background:
+                linear-gradient(
+                    135deg,
+                    #ff9d00,
+                    #ffc52e
+                );
+
+            border-radius: 25px;
+
+            padding: 25px;
+
+            margin-bottom: 18px;
+
+            color: white;
+
+            box-shadow:
+                0 10px 30px
+                rgba(255, 165, 0, 0.25);
+        }
+
+
+        .logo {
+            font-size: 25px;
+
+            font-weight: bold;
+
+            letter-spacing: 1px;
+        }
+
+
+        .welcome {
+            margin-top: 20px;
+
+            font-size: 26px;
+
+            font-weight: bold;
+        }
+
+
+        .worker-name {
+            margin-top: 7px;
+
+            font-size: 17px;
+
+            opacity: 0.95;
+        }
+
+
+        /* ================================================= */
+        /* STATISTICS */
+        /* ================================================= */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 12px;
+
+            margin-bottom: 12px;
+        }
+
+
+        .stat-card {
+            background:
+                linear-gradient(
+                    145deg,
+                    #272727,
+                    #171717
+                );
+
+            border:
+                1px solid
+                rgba(255,255,255,0.15);
+
+            border-radius: 22px;
+
+            padding: 20px 10px;
+
+            text-align: center;
+
+            box-shadow:
+                0 8px 25px
+                rgba(0,0,0,0.25);
+        }
+
+
+        .stat-icon {
+            font-size: 30px;
+
+            margin-bottom: 7px;
+        }
+
+
+        .stat-title {
+            font-size: 14px;
+
+            color: #dddddd;
+
+            margin-bottom: 8px;
+        }
+
+
+        .stat-number {
+            font-size: 28px;
+
+            font-weight: bold;
+
+            color: #ffb21c;
+        }
+
+
+        .stat-money {
+            font-size: 21px;
+
+            font-weight: bold;
+
+            color: #ffb21c;
+
+            white-space: nowrap;
+        }
+
+
+        /* ================================================= */
+        /* REFRESH */
+        /* ================================================= */
+
+        .refresh-button {
+            width: 100%;
+
+            border: none;
+
+            border-radius: 15px;
+
+            padding: 14px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #343434,
+                    #4a4a4a
+                );
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            margin-bottom: 25px;
+        }
+
+
+        .refresh-button:hover {
+            background: #555;
+        }
+
+
+        /* ================================================= */
+        /* TITLE */
+        /* ================================================= */
+
+        .section-title {
+            font-size: 22px;
+
+            font-weight: bold;
+
+            margin:
+                15px 5px;
+        }
+
+
+        /* ================================================= */
+        /* MESSAGES */
+        /* ================================================= */
+
+        .success {
+            background: #218c4a;
+
+            padding: 14px;
+
+            border-radius: 15px;
+
+            text-align: center;
+
+            margin-bottom: 15px;
+
+            font-weight: bold;
+        }
+
+
+        .error {
+            background: #a83232;
+
+            padding: 14px;
+
+            border-radius: 15px;
+
+            text-align: center;
+
+            margin-bottom: 15px;
+
+            font-weight: bold;
+
+            word-break: break-word;
+        }
+
+
+        /* ================================================= */
+        /* ORDER CARD */
+        /* ================================================= */
+
+        .order-card {
+            background:
+                linear-gradient(
+                    145deg,
+                    #303030,
+                    #1d1d1d
+                );
+
+            border:
+                1px solid
+                rgba(255,255,255,0.12);
+
+            border-radius: 22px;
+
+            padding: 20px;
+
+            margin-bottom: 18px;
+
+            box-shadow:
+                0 8px 25px
+                rgba(0,0,0,0.3);
+        }
+
+
+        .order-top {
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            margin-bottom: 15px;
+        }
+
+
+        .order-number {
+            font-size: 20px;
+
+            font-weight: bold;
+        }
+
+
+        .status {
+            padding:
+                7px 12px;
+
+            border-radius: 20px;
+
+            background: #ff9f19;
+
+            color: white;
+
+            font-size: 13px;
+
+            font-weight: bold;
+        }
+
+
+        .info {
+            margin:
+                10px 0;
+
+            color: #eeeeee;
+
+            line-height: 1.6;
+        }
+
+
+        .info strong {
+            color: white;
+        }
+
+
+        /* ================================================= */
+        /* CUSTOMER LOCATION */
+        /* ================================================= */
+
+        .location-box {
+            margin-top: 14px;
+
+            padding: 15px;
+
+            border-radius: 17px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #252525,
+                    #191919
+                );
+
+            border:
+                1px solid
+                rgba(255, 173, 24, 0.30);
+
+            box-shadow:
+                inset 0 0 0 1px
+                rgba(255,255,255,0.03);
+        }
+
+
+        .location-header {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 11px;
+        }
+
+
+        .location-icon {
+            width: 34px;
+
+            height: 34px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background:
+                rgba(255, 173, 24, 0.15);
+
+            font-size: 18px;
+        }
+
+
+        .location-title {
+            font-size: 15px;
+
+            font-weight: bold;
+
+            color: #ffb21c;
+        }
+
+
+        .location-subtitle {
+            font-size: 11px;
+
+            color: #999;
+
+            margin-top: 2px;
+        }
+
+
+        .location-coordinates {
+            background: #111;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.10);
+
+            border-radius: 11px;
+
+            padding: 11px;
+
+            color: #eeeeee;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            text-align: center;
+
+            letter-spacing: 0.3px;
+
+            margin-bottom: 10px;
+        }
+
+
+        .location-buttons {
+            display: grid;
+
+            grid-template-columns:
+                1.3fr 1fr;
+
+            gap: 8px;
+        }
+
+
+        .waze-button,
+        .copy-location-button {
+            border: none;
+
+            border-radius: 11px;
+
+            padding: 12px 8px;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            color: white;
+
+            text-align: center;
+        }
+
+
+        .waze-button {
+            background:
+                linear-gradient(
+                    90deg,
+                    #0875e1,
+                    #1d9bf0
+                );
+
+            box-shadow:
+                0 5px 15px
+                rgba(29,155,240,0.20);
+        }
+
+
+        .waze-button:hover {
+            filter: brightness(1.1);
+        }
+
+
+        .copy-location-button {
+            background:
+                linear-gradient(
+                    90deg,
+                    #3b3b3b,
+                    #505050
+                );
+        }
+
+
+        .copy-location-button:hover {
+            background: #5b5b5b;
+        }
+
+
+        .location-missing {
+            margin-top: 14px;
+
+            padding: 12px;
+
+            border-radius: 13px;
+
+            background: #242424;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            color: #999;
+
+            font-size: 13px;
+
+            text-align: center;
+        }
+
+
+        /* ================================================= */
+        /* TOTAL */
+        /* ================================================= */
+
+        .total {
+            border-top:
+                1px solid
+                rgba(255,255,255,0.15);
+
+            margin-top: 15px;
+
+            padding-top: 15px;
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+        }
+
+
+        .total-label {
+            font-size: 15px;
+        }
+
+
+        .total-value {
+            color: #ffad18;
+
+            font-size: 21px;
+
+            font-weight: bold;
+        }
+
+
+        /* ================================================= */
+        /* BUTTONS */
+        /* ================================================= */
+
+        .buttons {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 10px;
+
+            margin-top: 15px;
+        }
+
+
+        .button {
+            display: block;
+
+            width: 100%;
+
+            padding: 13px 8px;
+
+            border: none;
+
+            border-radius: 13px;
+
+            text-align: center;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            color: white;
+        }
+
+
+        .whatsapp {
+            background: #20b858;
+        }
+
+
+        .accept {
+            background: #ff9f19;
+        }
+
+
+        .ready {
+            background: #387ed8;
+        }
+
+
+        .delivered {
+            background: #249653;
+        }
+
+
+        .details {
+            background: #444;
+
+            border:
+                1px solid
+                #666;
+        }
+
+
+        .logout {
+            display: block;
+
+            width: 100%;
+
+            margin-top: 20px;
+
+            padding: 15px;
+
+            background:
+                #292929;
+
+            color: #ffad18;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.12);
+
+            border-radius: 15px;
+
+            text-align: center;
+
+            text-decoration: none;
+
+            font-weight: bold;
+        }
+
+
+        /* ================================================= */
+        /* EMPTY */
+        /* ================================================= */
+
+        .empty {
+            background:
+                linear-gradient(
+                    145deg,
+                    #303030,
+                    #1d1d1d
+                );
+
+            border-radius: 22px;
+
+            padding: 40px 20px;
+
+            text-align: center;
+
+            margin-bottom: 20px;
+        }
+
+
+        .empty-icon {
+            font-size: 45px;
+
+            margin-bottom: 15px;
+        }
+
+
+        .empty-title {
+            font-size: 18px;
+
+            font-weight: bold;
+
+            margin-bottom: 10px;
+        }
+
+
+        .empty-text {
+            color: #aaaaaa;
+
+            line-height: 1.5;
+        }
+
+
+        /* ================================================= */
+        /* MODAL */
+        /* ================================================= */
+
+        .modal {
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(0,0,0,0.75);
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            z-index: 999;
+        }
+
+
+        .modal-content {
+            width: 100%;
+
+            max-width: 500px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #333,
+                    #202020
+                );
+
+            border-radius: 22px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,0.6);
+        }
+
+
+        .modal-title {
+            color: #ffb21c;
+
+            font-size: 24px;
+
+            font-weight: bold;
+
+            margin-bottom: 18px;
+        }
+
+
+        .modal-line {
+            margin:
+                10px 0;
+
+            line-height: 1.6;
+        }
+
+
+        .modal-location {
+            margin-top: 15px;
+
+            padding: 14px;
+
+            border-radius: 14px;
+
+            background: #181818;
+
+            border:
+                1px solid
+                rgba(255,173,24,0.25);
+        }
+
+
+        .modal-location-title {
+            color: #ffb21c;
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+        }
+
+
+        .modal-location-value {
+            background: #101010;
+
+            padding: 10px;
+
+            border-radius: 9px;
+
+            text-align: center;
+
+            font-weight: bold;
+
+            margin-bottom: 9px;
+        }
+
+
+        .modal-waze {
+            display: block;
+
+            width: 100%;
+
+            padding: 12px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #0875e1,
+                    #1d9bf0
+                );
+
+            color: white;
+
+            text-decoration: none;
+
+            text-align: center;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+
+        .close-button {
+            width: 100%;
+
+            margin-top: 20px;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 13px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #ff9f19,
+                    #ffc52e
+                );
+
+            color: white;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+
+        /* ================================================= */
+        /* MOBILE */
+        /* ================================================= */
+
+        @@media (max-width: 500px)
+        {
+            .container {
+                padding:
+                    15px 10px 40px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .welcome {
+                font-size: 23px;
+            }
+
+            .stats {
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 17px 5px;
+            }
+
+            .stat-money {
+                font-size: 18px;
+            }
+
+            .location-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <div class="header">
+
+        <div class="logo">
+            QAMISHLO DELIVERY
+        </div>
+
+        <div class="welcome">
+            👋 Welcome
+        </div>
+
+        <div class="worker-name">
+            @Model.WorkerName
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- MESSAGES -->
+    <!-- ================================================= -->
+
+    @if (TempData["StatusSuccess"] != null)
+    {
+        <div class="success">
+            ✅ @TempData["StatusSuccess"]
+        </div>
+    }
+
+
+    @if (TempData["StatusError"] != null)
+    {
+        <div class="error">
+            ❌ @TempData["StatusError"]
+        </div>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- STATISTICS -->
+    <!-- ================================================= -->
+
+    <div class="stats">
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                📦
+            </div>
+
+            <div class="stat-title">
+                Assigned Orders
+            </div>
+
+            <div class="stat-number">
+                @Model.AssignedOrdersCount
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🛵
+            </div>
+
+            <div class="stat-title">
+                Active Deliveries
+            </div>
+
+            <div class="stat-number">
+                @Model.ActiveDeliveriesCount
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                ✅
+            </div>
+
+            <div class="stat-title">
+                Delivered Today
+            </div>
+
+            <div class="stat-number">
+                @Model.DeliveredOrdersToday
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                💰
+            </div>
+
+            <div class="stat-title">
+                Today's Total
+            </div>
+
+            <div class="stat-money">
+                @Model.TotalAmountToday.ToString("N0") IQD
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- REFRESH -->
+    <!-- ================================================= -->
+
+    <form method="get">
+
+        <button
+            type="submit"
+            class="refresh-button">
+
+            🔄 Refresh
+
+        </button>
+
+    </form>
+
+
+    <!-- ================================================= -->
+    <!-- ORDERS -->
+    <!-- ================================================= -->
+
+    <div class="section-title">
+        My Orders
+    </div>
+
+
+    @if (Model.Orders.Count == 0)
+    {
+        <div class="empty">
+
+            <div class="empty-icon">
+                📦
+            </div>
+
+            <div class="empty-title">
+                No orders assigned
+            </div>
+
+            <div class="empty-text">
+                When the restaurant assigns an order
+                to you, it will appear here.
+            </div>
+
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model.Orders)
+        {
+
+            /*
+             * =====================================================
+             * EXTRACT CUSTOMER LOCATION
+             *
+             * The customer app saves:
+             *
+             * Location: 36.120705, 44.061567
+             *
+             * inside Notes.
+             * =====================================================
+             */
+
+            string latitude = "";
+            string longitude = "";
+            string location = "";
+
+            if (!string.IsNullOrWhiteSpace(order.Notes))
+            {
+                var locationMatch =
+                    System.Text.RegularExpressions.Regex.Match(
+                        order.Notes,
+                        @"Location:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)",
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                    );
+
+                if (locationMatch.Success)
+                {
+                    latitude =
+                        locationMatch.Groups[1].Value;
+
+                    longitude =
+                        locationMatch.Groups[2].Value;
+
+                    location =
+                        $"{latitude},{longitude}";
+                }
+            }
+
+
+            <div class="order-card">
+
+
+                <!-- ORDER TOP -->
+
+                <div class="order-top">
+
+                    <div class="order-number">
+                        Order #@order.OrderID
+                    </div>
+
+                    <div class="status">
+                        @order.Status
+                    </div>
+
+                </div>
+
+
+                <!-- CUSTOMER -->
+
+                <div class="info">
+                    👤
+                    <strong>Customer:</strong>
+                    @order.CustomerName
+                </div>
+
+
+                <!-- PHONE -->
+
+                @if (!string.IsNullOrWhiteSpace(
+                    order.CustomerPhone))
+                {
+                    <div class="info">
+                        📞
+                        <strong>Phone:</strong>
+                        @order.CustomerPhone
+                    </div>
+                }
+
+
+                <!-- TYPE -->
+
+                <div class="info">
+                    🛵
+                    <strong>Type:</strong>
+                    @order.OrderType
+                </div>
+
+
+                <!-- ZONE -->
+
+                @if (!string.IsNullOrWhiteSpace(
+                    order.ZoneName))
+                {
+                    <div class="info">
+                        📍
+                        <strong>Zone:</strong>
+                        @order.ZoneName
+                    </div>
+                }
+
+
+                <!-- ADDRESS -->
+
+                @if (!string.IsNullOrWhiteSpace(
+                    order.DeliveryAddress))
+                {
+                    <div class="info">
+                        📌
+                        <strong>Address:</strong>
+                        @order.DeliveryAddress
+                    </div>
+                }
+
+
+                <!-- TIME -->
+
+                <div class="info">
+                    🕐
+                    <strong>Time:</strong>
+                    @order.OrderDate.ToString(
+                        "yyyy-MM-dd HH:mm")
+                </div>
+
+
+                <!-- NOTES -->
+
+                @if (!string.IsNullOrWhiteSpace(
+                    order.Notes))
+                {
+                    <div class="info">
+                        📝
+                        <strong>Notes:</strong>
+                        @order.Notes
+                    </div>
+                }
+
+
+                <!-- ================================================= -->
+                <!-- CUSTOMER LOCATION -->
+                <!-- ================================================= -->
+
+                @if (!string.IsNullOrWhiteSpace(location))
+                {
+
+                    <div class="location-box">
+
+
+                        <div class="location-header">
+
+                            <div class="location-icon">
+                                📍
+                            </div>
+
+                            <div>
+
+                                <div class="location-title">
+                                    Customer Location
+                                </div>
+
+                                <div class="location-subtitle">
+                                    GPS coordinates
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="location-coordinates">
+
+                            @latitude, @longitude
+
+                        </div>
+
+
+                        <div class="location-buttons">
+
+
+                            <!-- WAZE -->
+
+                            <button
+                                type="button"
+                                class="waze-button"
+                                onclick="openWaze(
+                                    '@latitude',
+                                    '@longitude'
+                                )">
+
+                                🧭 Navigate with Waze
+
+                            </button>
+
+
+                            <!-- COPY -->
+
+                            <button
+                                type="button"
+                                class="copy-location-button"
+                                onclick="copyLocation(
+                                    '@location'
+                                )">
+
+                                📋 Copy Location
+
+                            </button>
+
+
+                        </div>
+
+                    </div>
+
+                }
+                else
+                {
+
+                    <div class="location-missing">
+
+                        📍 Customer location not provided
+
+                    </div>
+
+                }
+
+
+                <!-- TOTAL -->
+
+                <div class="total">
+
+                    <div class="total-label">
+                        Total
+                    </div>
+
+                    <div class="total-value">
+
+                        @order.TotalAmount.ToString("N0")
+                        IQD
+
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <div class="buttons">
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                        order.CustomerPhone))
+                    {
+                        <a
+                            href="@Model.GetWhatsAppUrl(
+                                order.CustomerPhone)"
+                            target="_blank"
+                            class="button whatsapp">
+
+                            💬 WhatsApp
+
+                        </a>
+                    }
+
+
+                    <!-- NEW → PREPARING -->
+
+                    @if (order.Status == "New")
+                    {
+                        <form
+                            method="post"
+                            asp-page-handler="Status">
+
+                            <input
+                                type="hidden"
+                                name="orderID"
+                                value="@order.OrderID" />
+
+                            <input
+                                type="hidden"
+                                name="status"
+                                value="Preparing" />
+
+                            <button
+                                type="submit"
+                                class="button accept">
+
+                                ✅ Accept Order
+
+                            </button>
+
+                        </form>
+                    }
+
+
+                    <!-- PREPARING → READY -->
+
+                    @if (order.Status == "Preparing")
+                    {
+                        <form
+                            method="post"
+                            asp-page-handler="Status">
+
+                            <input
+                                type="hidden"
+                                name="orderID"
+                                value="@order.OrderID" />
+
+                            <input
+                                type="hidden"
+                                name="status"
+                                value="Ready" />
+
+                            <button
+                                type="submit"
+                                class="button ready">
+
+                                📦 Picked Up
+
+                            </button>
+
+                        </form>
+                    }
+
+
+                    <!-- READY → DELIVERED -->
+
+                    @if (order.Status == "Ready")
+                    {
+                        <form
+                            method="post"
+                            asp-page-handler="Status">
+
+                            <input
+                                type="hidden"
+                                name="orderID"
+                                value="@order.OrderID" />
+
+                            <input
+                                type="hidden"
+                                name="status"
+                                value="Delivered" />
+
+                            <button
+                                type="submit"
+                                class="button delivered">
+
+                                🏠 Delivered
+
+                            </button>
+
+                        </form>
+                    }
+
+
+                    <!-- DETAILS -->
+
+                    <button
+                        type="button"
+                        class="button details"
+                        onclick="showDetails(
+                            @order.OrderID,
+                            '@Html.Raw(
+                                System.Text.Encodings.Web
+                                .JavaScriptEncoder.Default
+                                .Encode(
+                                    order.CustomerName
+                                )
+                            )',
+                            '@Html.Raw(
+                                System.Text.Encodings.Web
+                                .JavaScriptEncoder.Default
+                                .Encode(
+                                    order.CustomerPhone
+                                )
+                            )',
+                            '@Html.Raw(
+                                System.Text.Encodings.Web
+                                .JavaScriptEncoder.Default
+                                .Encode(
+                                    order.DeliveryAddress
+                                )
+                            )',
+                            '@Html.Raw(
+                                System.Text.Encodings.Web
+                                .JavaScriptEncoder.Default
+                                .Encode(
+                                    order.Notes
+                                )
+                            )',
+                            '@latitude',
+                            '@longitude'
+                        )">
+
+                        👁 View Details
+
+                    </button>
+
+
+                </div>
+
+            </div>
+        }
+    }
+
+
+    <!-- ================================================= -->
+    <!-- LOGOUT -->
+    <!-- ================================================= -->
+
+    <a
+        href="/Login"
+        class="logout">
+
+        🚪 Logout
+
+    </a>
+
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- DETAILS MODAL -->
+<!-- ===================================================== -->
+
+<div
+    id="detailsModal"
+    class="modal"
+    onclick="closeModal(event)">
+
+
+    <div
+        class="modal-content"
+        onclick="event.stopPropagation()">
+
+
+        <div class="modal-title">
+            Order Details
+        </div>
+
+
+        <div
+            id="modalBody">
+        </div>
+
+
+        <button
+            class="close-button"
+            onclick="closeDetails()">
+
+            Close
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+    /* ===================================================== */
+    /* OPEN WAZE */
+    /* ===================================================== */
+
+    function openWaze(latitude, longitude)
+    {
+
+        if (!latitude || !longitude)
+        {
+            alert(
+                "Customer location is not available."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Official Waze URL format:
+         *
+         * https://waze.com/ul?ll=LAT,LON&navigate=yes
+         */
+
+
+        const wazeUrl =
+            "https://waze.com/ul" +
+            "?ll=" +
+            encodeURIComponent(
+                latitude + "," + longitude
+            ) +
+            "&navigate=yes";
+
+
+        /*
+         * Open Waze navigation.
+         */
+
+        window.location.href =
+            wazeUrl;
+
+    }
+
+
+    /* ===================================================== */
+    /* COPY LOCATION */
+    /* ===================================================== */
+
+    function copyLocation(location)
+    {
+
+        if (!location)
+        {
+            return;
+        }
+
+
+        navigator.clipboard
+            .writeText(location)
+            .then(function()
+            {
+
+                alert(
+                    "Customer location copied successfully.\n\n" +
+                    location
+                );
+
+            })
+            .catch(function()
+            {
+
+                alert(
+                    "Customer location:\n\n" +
+                    location
+                );
+
+            });
+
+    }
+
+
+    /* ===================================================== */
+    /* DETAILS MODAL */
+    /* ===================================================== */
+
+    function showDetails(
+        orderID,
+        customer,
+        phone,
+        address,
+        notes,
+        latitude,
+        longitude
+    )
+    {
+
+        let html = "";
+
+
+        html +=
+            "<div class='modal-line'>" +
+            "📦 <strong>Order:</strong> #" +
+            orderID +
+            "</div>";
+
+
+        html +=
+            "<div class='modal-line'>" +
+            "👤 <strong>Customer:</strong> " +
+            customer +
+            "</div>";
+
+
+        if (phone)
+        {
+
+            html +=
+                "<div class='modal-line'>" +
+                "📞 <strong>Phone:</strong> " +
+                phone +
+                "</div>";
+
+        }
+
+
+        if (address)
+        {
+
+            html +=
+                "<div class='modal-line'>" +
+                "📍 <strong>Address:</strong><br>" +
+                address +
+                "</div>";
+
+        }
+
+
+        if (notes)
+        {
+
+            html +=
+                "<div class='modal-line'>" +
+                "📝 <strong>Notes:</strong><br>" +
+                notes +
+                "</div>";
+
+        }
+
+
+        /* ================================================= */
+        /* MODAL LOCATION */
+        /* ================================================= */
+
+        if (latitude && longitude)
+        {
+
+            const location =
+                latitude + "," + longitude;
+
+
+            html +=
+                "<div class='modal-location'>" +
+
+                    "<div class='modal-location-title'>" +
+                        "📍 Customer Location" +
+                    "</div>" +
+
+                    "<div class='modal-location-value'>" +
+                        location +
+                    "</div>" +
+
+                    "<button " +
+                        "type='button' " +
+                        "class='modal-waze' " +
+                        "onclick=\"openWaze('" +
+                            latitude +
+                            "','" +
+                            longitude +
+                        "')\">" +
+
+                        "🧭 Navigate with Waze" +
+
+                    "</button>" +
+
+                "</div>";
+
+        }
+        else
+        {
+
+            html +=
+                "<div class='modal-line'>" +
+                "📍 <strong>Customer Location:</strong> " +
+                "Not provided" +
+                "</div>";
+
+        }
+
+
+        document.getElementById(
+            "modalBody"
+        ).innerHTML = html;
+
+
+        document.getElementById(
+            "detailsModal"
+        ).style.display = "flex";
+
+    }
+
+
+    /* ===================================================== */
+    /* CLOSE MODAL */
+    /* ===================================================== */
+
+    function closeDetails()
+    {
+
+        document.getElementById(
+            "detailsModal"
+        ).style.display = "none";
+
+    }
+
+
+    /* ===================================================== */
+    /* CLOSE WHEN CLICK OUTSIDE */
+    /* ===================================================== */
+
+    function closeModal(event)
+    {
+
+        if (
+            event.target.id ===
+            "detailsModal"
+        )
+        {
+
+            closeDetails();
+
+        }
+
+    }
+
+</script>
+
+</body>
+
+</html>

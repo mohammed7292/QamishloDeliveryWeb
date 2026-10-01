@@ -1,0 +1,199 @@
+﻿@page
+@model QamishloDeliveryWeb.Pages.LoginModel
+@{
+    ViewData["Title"] = "Delivery Login";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Qamishlo Delivery</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #111111;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: #1c1c1c;
+            border-radius: 24px;
+            padding: 35px 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            background: #ff7a00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .title {
+            text-align: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #999999;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #dddddd;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            background: #292929;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #ff7a00;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 12px;
+            background: #ff7a00;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-button:hover {
+            background: #e66d00;
+        }
+
+        .error-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #3a1c1c;
+            color: #ff6b6b;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            color: #666666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="logo">
+            QF
+        </div>
+
+        <div class="title">
+            Qamishlo Delivery
+        </div>
+
+        <div class="subtitle">
+            Delivery Worker Login
+        </div>
+
+        <form method="post">
+
+            <div class="input-group">
+                <label for="Username">Username</label>
+
+                <input
+                    id="Username"
+                    name="Username"
+                    type="text"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    required />
+            </div>
+
+            <div class="input-group">
+                <label for="Password">Password</label>
+
+                <input
+                    id="Password"
+                    name="Password"
+                    type="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required />
+            </div>
+
+            <button type="submit" class="login-button">
+                Login
+            </button>
+
+        </form>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="error-message">
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <div class="footer">
+            Qamishlo Fast Food
+        </div>
+
+    </div>
+
+</body>
+</html>
