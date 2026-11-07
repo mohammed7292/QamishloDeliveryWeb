@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -43,8 +43,11 @@ namespace QamishloDeliveryWeb.Pages
                 HttpContext.Session.GetString("DeliveryWorkerName")
                 ?? "Delivery Worker";
 
-            if (WorkerID == 0)
+            if (WorkerID == 0 ||
+                string.IsNullOrWhiteSpace(HttpContext.Session.GetString("DeliveryWorkerUsername")) ||
+                string.IsNullOrWhiteSpace(HttpContext.Session.GetString("DeliveryWorkerPassword")))
             {
+                HttpContext.Session.Clear();
                 return RedirectToPage("/Login");
             }
 
@@ -54,20 +57,39 @@ namespace QamishloDeliveryWeb.Pages
             return Page();
         }
 
+        private HttpClient CreateWorkerApiClient()
+        {
+            HttpClient client = _httpClientFactory.CreateClient("QamishloAPI");
+            string username = HttpContext.Session.GetString("DeliveryWorkerUsername") ?? "";
+            string password = HttpContext.Session.GetString("DeliveryWorkerPassword") ?? "";
+
+            client.DefaultRequestHeaders.Remove("X-Delivery-Worker-Username");
+            client.DefaultRequestHeaders.Remove("X-Delivery-Worker-Password");
+
+            if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+            {
+                client.DefaultRequestHeaders.Add("X-Delivery-Worker-Username", username);
+                client.DefaultRequestHeaders.Add("X-Delivery-Worker-Password", password);
+            }
+
+            return client;
+        }
+
         private async Task LoadTodayStatisticsAsync()
         {
             try
             {
-                var client =
-                    _httpClientFactory.CreateClient("QamishloAPI");
-
-                var response = await client.GetAsync(
+                using HttpClient client = CreateWorkerApiClient();
+                using HttpResponseMessage response = await client.GetAsync(
                     $"api/DeliveryWorkers/{WorkerID}/today-stats");
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    ErrorMessage =
-                        "Could not load today's statistics.";
+                    string detail = await response.Content.ReadAsStringAsync();
+                    if (detail.Length > 220) detail = detail[..220];
+                    ErrorMessage = response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                        ? "Your worker session expired. Please sign in again."
+                        : $"Could not load today's statistics ({(int)response.StatusCode}): {detail}";
                     return;
                 }
 
@@ -97,16 +119,19 @@ namespace QamishloDeliveryWeb.Pages
         {
             try
             {
-                var client =
-                    _httpClientFactory.CreateClient("QamishloAPI");
-
-                var response = await client.GetAsync(
-                    $"api/DeliveryWorkers/{WorkerID}/orders");
+                using HttpClient client = CreateWorkerApiClient();
+                using HttpResponseMessage response = await client.GetAsync(
+                    $"api/DeliveryWorkers/{WorkerID}/delivered-orders");
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    ErrorMessage =
-                        "Could not load the order history.";
+                    string detail = await response.Content.ReadAsStringAsync();
+                    if (detail.Length > 220) detail = detail[..220];
+                    ErrorMessage = response.StatusCode == System.Net.HttpStatusCode.NotFound
+                        ? "The delivered-history API endpoint is not published yet. Update the API before using this report."
+                        : response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                            ? "Your worker session expired. Please sign in again."
+                            : $"Could not load the order history ({(int)response.StatusCode}): {detail}";
                     return;
                 }
 
@@ -133,10 +158,9 @@ namespace QamishloDeliveryWeb.Pages
                         "The order history was not available.";
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                ErrorMessage =
-                    "Could not connect to the restaurant server.";
+                ErrorMessage = "Could not connect to the restaurant server: " + ex.Message;
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model QamishloDeliveryWeb.Pages.LoginModel
 @{
     ViewData["Title"] = "Qamishlo Delivery";
@@ -10,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#E77B12" />
+    <meta name="theme-color" content="#14110F" />
     <meta name="description" content="Qamishlo Fast Food delivery worker application" />
 
     <link rel="manifest" href="/manifest.json" />
@@ -18,194 +18,29 @@
     <title>Qamishlo Delivery</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        :root {
-            color-scheme: dark;
-            --orange: #E77B12;
-            --yellow: #FFD329;
-            --background: #101010;
-            --surface: #1B1B1B;
-            --muted: #A4A4A4;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            min-height: 100dvh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            font-family: Arial, Helvetica, sans-serif;
-            color: white;
-            background:
-                radial-gradient(ellipse at top, #38210E 0%, transparent 48%),
-                var(--background);
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 410px;
-            padding: 30px 24px;
-            background: linear-gradient(145deg, #222, #171717);
-            border: 1px solid #37312A;
-            border-radius: 26px;
-            box-shadow: 0 24px 70px #0009;
-        }
-
-        .brand {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo {
-            width: 78px;
-            height: 78px;
-            display: grid;
-            place-items: center;
-            margin: 0 auto 17px;
-            border-radius: 23px;
-            background: linear-gradient(135deg, var(--orange), var(--yellow));
-            color: #17120A;
-            font-size: 25px;
-            font-weight: 900;
-            box-shadow: 0 9px 28px #E77B1238;
-        }
-
-        .brand h1 {
-            margin: 0;
-            font-size: 27px;
-            letter-spacing: .5px;
-        }
-
-        .brand h1 span {
-            color: var(--yellow);
-        }
-
-        .subtitle {
-            margin: 10px 0 0;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .welcome {
-            margin-bottom: 22px;
-        }
-
-        .welcome h2 {
-            margin: 0 0 7px;
-            font-size: 21px;
-        }
-
-        .welcome p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .input-group {
-            margin-bottom: 18px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 9px;
-            color: #EAEAEA;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .input-group input {
-            display: block;
-            width: 100%;
-            min-height: 51px;
-            padding: 14px;
-            border: 1px solid #3A3A3A;
-            border-radius: 13px;
-            outline: none;
-            background: #111;
-            color: white;
-            font-size: 16px;
-            transition: border-color .2s, box-shadow .2s;
-        }
-
-        .input-group input:focus {
-            border-color: var(--orange);
-            box-shadow: 0 0 0 3px #E77B1220;
-        }
-
-        .login-button {
-            width: 100%;
-            min-height: 53px;
-            margin-top: 7px;
-            border: none;
-            border-radius: 14px;
-            background: linear-gradient(100deg, var(--orange), var(--yellow));
-            color: #211609;
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        .login-button:active {
-            transform: scale(.99);
-        }
-
-        .error-message {
-            margin-top: 17px;
-            padding: 13px;
-            border: 1px solid #743737;
-            border-radius: 12px;
-            background: #381D1D;
-            color: #FFAAAA;
-            text-align: center;
-            font-size: 14px;
-            line-height: 1.5;
-            overflow-wrap: anywhere;
-        }
-
-        .footer {
-            margin-top: 25px;
-            color: #777;
-            text-align: center;
-            font-size: 12px;
-        }
-
-        .footer strong {
-            color: var(--orange);
-        }
-
-        .install-button {
-            display: none;
-            width: 100%;
-            margin-top: 12px;
-            padding: 12px;
-            border: 1px solid #51402A;
-            border-radius: 12px;
-            background: #29231C;
-            color: var(--yellow);
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        @@media (max-width: 380px) {
-            body {
-                padding: 14px;
-            }
-
-            .login-container {
-                padding: 25px 18px;
-            }
-
-            .brand h1 {
-                font-size: 24px;
-            }
-        }
+        * { box-sizing:border-box; }
+        :root { color-scheme:dark; --orange:#F37A1F; --bg:#14110F; --surface:rgba(37,32,29,.82); --muted:#9E9690; --line:rgba(255,255,255,.12); }
+        body { margin:0; min-height:100vh; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:22px; font-family:Inter,Segoe UI,Arial,sans-serif; color:#fff; background:radial-gradient(ellipse at 16% 0%,rgba(74,40,16,.6),transparent 45%),radial-gradient(ellipse at 100% 80%,rgba(243,122,31,.12),transparent 42%),var(--bg); }
+        .login-container { width:100%; max-width:420px; padding:30px 25px; border:1px solid var(--line); border-radius:28px; background:var(--surface); box-shadow:0 25px 70px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.05); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+        .brand { text-align:center; margin-bottom:29px; }
+        .logo { width:78px; height:78px; display:grid; place-items:center; margin:0 auto 17px; border:1px solid rgba(255,255,255,.2); border-radius:24px; background:linear-gradient(135deg,#FF9A43,var(--orange)); color:#20140C; font-size:25px; font-weight:950; box-shadow:0 10px 32px rgba(243,122,31,.27); }
+        .brand h1 { margin:0; font-size:26px; letter-spacing:.5px; }
+        .brand h1 span { color:var(--orange); }
+        .subtitle { margin:10px 0 0; color:var(--muted); font-size:13px; }
+        .welcome { margin-bottom:22px; }
+        .welcome h2 { margin:0 0 7px; font-size:22px; }
+        .welcome p { margin:0; color:var(--muted); font-size:13px; line-height:1.6; }
+        .input-group { margin-bottom:18px; }
+        .input-group label { display:block; margin-bottom:9px; color:#F1E8E2; font-size:13px; font-weight:800; }
+        .input-group input { display:block; width:100%; min-height:52px; padding:14px; border:1px solid var(--line); border-radius:14px; outline:none; background:rgba(0,0,0,.22); color:#fff; font-size:16px; transition:border-color .2s,box-shadow .2s; }
+        .input-group input:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(243,122,31,.16); }
+        .login-button { width:100%; min-height:54px; margin-top:7px; border:0; border-radius:15px; background:linear-gradient(100deg,#F37A1F,#FF9B3D); color:#20140C; font-size:16px; font-weight:950; cursor:pointer; box-shadow:0 10px 25px rgba(243,122,31,.18); }
+        .login-button:active { transform:scale(.99); }
+        .error-message { margin-top:17px; padding:13px; border:1px solid rgba(240,108,93,.42); border-radius:13px; background:rgba(108,35,29,.22); color:#FFB6AD; text-align:center; font-size:13px; line-height:1.55; overflow-wrap:anywhere; }
+        .footer { margin-top:25px; color:#77706A; text-align:center; font-size:12px; }
+        .footer strong { color:var(--orange); }
+        .install-button { display:none; width:100%; margin-top:12px; padding:12px; border:1px solid var(--line); border-radius:12px; background:rgba(255,255,255,.07); color:#FFB879; font-size:14px; font-weight:bold; cursor:pointer; }
+        @@media(max-width:380px) { body { padding:14px; } .login-container { padding:25px 18px; } .brand h1 { font-size:23px; } }
     </style>
 </head>
 

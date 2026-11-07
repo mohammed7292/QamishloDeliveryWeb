@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model QamishloDeliveryWeb.Pages.ReportsModel
 @{
     Layout = null;
@@ -10,123 +10,38 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#111111" />
+    <meta name="theme-color" content="#14110F" />
     <link rel="manifest" href="/manifest.json" />
     <title>Delivery Reports - Qamishlo</title>
 
     <style>
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            padding: 18px 12px 35px;
-            background: #101010;
-            color: white;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        .container { max-width: 720px; margin: auto; }
-
-        .header {
-            padding: 23px;
-            margin-bottom: 20px;
-            border-radius: 22px;
-            color: #211609;
-            background: linear-gradient(120deg, #f28b12, #ffd329);
-        }
-
-        .brand { font-size: 19px; font-weight: 900; }
-        .subtitle { margin-top: 8px; font-size: 13px; }
-
-        .back {
-            display: inline-block;
-            margin-top: 18px;
-            color: #211609;
-            font-size: 14px;
-            font-weight: 800;
-            text-decoration: none;
-        }
-
-        h2 { margin: 23px 2px 13px; font-size: 21px; }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 11px;
-        }
-
-        .card, .order, .notice {
-            min-width: 0;
-            padding: 17px;
-            border: 1px solid #373737;
-            border-radius: 17px;
-            background: linear-gradient(145deg, #252525, #191919);
-        }
-
-        .label { color: #aaa; font-size: 12px; line-height: 1.5; }
-        .value {
-            margin-top: 8px;
-            color: #ffd329;
-            font-size: clamp(21px, 5vw, 28px);
-            font-weight: 900;
-            overflow-wrap: anywhere;
-        }
-
-        .order { margin-bottom: 12px; }
-
-        .order-top {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .order-id { font-size: 18px; font-weight: 900; }
-
-        .badge {
-            padding: 7px 10px;
-            border-radius: 20px;
-            background: #17472a;
-            color: #9af0b6;
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-        .detail {
-            margin-top: 12px;
-            color: #ddd;
-            font-size: 13px;
-            line-height: 1.6;
-            overflow-wrap: anywhere;
-        }
-
-        .amount {
-            margin-top: 14px;
-            padding-top: 13px;
-            border-top: 1px solid #3a3a3a;
-            color: #ffd329;
-            font-size: 18px;
-            font-weight: 900;
-        }
-
-        .notice {
-            color: #ddd;
-            font-size: 13px;
-            line-height: 1.7;
-        }
-
-        .notice.error {
-            border-color: #8a3939;
-            color: #ffc1c1;
-        }
-
-        .empty { text-align: center; padding: 30px 15px; }
-        .empty-icon { font-size: 38px; margin-bottom: 10px; }
-        .muted { color: #aaa; font-size: 12px; }
-
-        @@media (max-width: 360px) {
-            .card { padding: 12px; }
-        }
+        :root { color-scheme:dark; --bg:#14110F; --surface:rgba(37,32,29,.78); --line:rgba(255,255,255,.12); --orange:#F37A1F; --muted:#9E9690; }
+        * { box-sizing:border-box; }
+        body { margin:0; min-height:100vh; padding:18px 13px calc(35px + env(safe-area-inset-bottom)); color:#fff; font-family:Inter,Segoe UI,Arial,sans-serif; background:radial-gradient(ellipse at 10% 0%,rgba(74,40,16,.55),transparent 44%),radial-gradient(ellipse at 100% 12%,rgba(243,122,31,.13),transparent 35%),#14110F; background-attachment:fixed; }
+        .container { width:100%; max-width:760px; margin:auto; }
+        .header { position:relative; overflow:hidden; isolation:isolate; padding:24px; margin-bottom:22px; border:1px solid var(--line); border-radius:27px; color:#fff; background:linear-gradient(135deg,rgba(53,43,36,.94),rgba(28,25,23,.82)); box-shadow:0 18px 50px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.06); backdrop-filter:blur(18px); }
+        .header:after { content:"🛵"; position:absolute; z-index:-1; right:14px; bottom:5px; font-size:82px; opacity:.13; }
+        .brand { color:#fff; font-size:19px; font-weight:950; letter-spacing:.5px; }
+        .subtitle { margin-top:8px; color:var(--muted); font-size:13px; line-height:1.55; }
+        .back { display:inline-flex; align-items:center; margin-top:19px; padding:10px 14px; border:1px solid var(--line); border-radius:30px; background:rgba(255,255,255,.07); color:#FFB879; font-size:13px; font-weight:850; text-decoration:none; }
+        h2 { margin:25px 2px 13px; font-size:22px; font-weight:900; letter-spacing:-.3px; }
+        .stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+        .card,.order,.notice { min-width:0; padding:18px; border:1px solid var(--line); border-radius:21px; background:var(--surface); box-shadow:0 12px 30px rgba(0,0,0,.17),inset 0 1px rgba(255,255,255,.04); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+        .label { color:var(--muted); font-size:12px; line-height:1.5; }
+        .value { margin-top:8px; color:#FF9A43; font-size:clamp(22px,5vw,30px); font-weight:950; overflow-wrap:anywhere; }
+        .order { margin-bottom:13px; }
+        .order-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding-bottom:13px; border-bottom:1px solid rgba(255,255,255,.09); }
+        .order-id { color:#fff; font-size:20px; font-weight:950; }
+        .badge { padding:7px 11px; border:1px solid rgba(57,185,120,.35); border-radius:20px; background:rgba(38,139,83,.16); color:#9FE8BD; font-size:11px; font-weight:850; }
+        .detail { margin-top:12px; color:#D5CCC5; font-size:13px; line-height:1.7; overflow-wrap:anywhere; }
+        .detail strong { color:#fff; }
+        .amount { margin-top:15px; padding-top:13px; border-top:1px solid rgba(255,255,255,.09); color:#FF9A43; font-size:19px; font-weight:950; }
+        .notice { margin-top:14px; color:#E4DAD2; font-size:13px; line-height:1.75; }
+        .notice.error { border-color:rgba(240,108,93,.42); background:rgba(108,35,29,.22); color:#FFB6AD; }
+        .empty { text-align:center; padding:32px 15px; }
+        .empty-icon { font-size:38px; margin-bottom:10px; }
+        .muted { color:var(--muted); font-size:12px; line-height:1.6; }
+        @@media(max-width:360px) { body { padding-left:10px; padding-right:10px; } .card,.order { padding:14px; } .header { padding:19px; } }
     </style>
 </head>
 

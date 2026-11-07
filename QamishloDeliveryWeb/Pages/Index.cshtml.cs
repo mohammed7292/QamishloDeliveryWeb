@@ -33,6 +33,8 @@ namespace QamishloDeliveryWeb.Pages
         public List<DeliveryOrder> Orders { get; set; } =
             new List<DeliveryOrder>();
 
+        public string OrdersLoadError { get; set; } = "";
+
         public List<TransferWorkerOption> TransferWorkers { get; set; } =
             new List<TransferWorkerOption>();
 
@@ -155,8 +157,10 @@ namespace QamishloDeliveryWeb.Pages
                     string detail = await response.Content.ReadAsStringAsync();
                     if (detail.Length > 250) detail = detail[..250];
                     Orders = new List<DeliveryOrder>();
-                    TempData["StatusError"] =
-                        $"Could not load orders ({(int)response.StatusCode}): {detail}";
+                    OrdersLoadError = response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                        ? "Your delivery-worker session has expired. Please sign in again."
+                        : $"Could not load orders ({(int)response.StatusCode}): {detail}";
+                    TempData["StatusError"] = OrdersLoadError;
                     return;
                 }
 
@@ -174,8 +178,9 @@ namespace QamishloDeliveryWeb.Pages
                 }
                 else
                 {
-                    Orders =
-                        new List<DeliveryOrder>();
+                    Orders = new List<DeliveryOrder>();
+                    OrdersLoadError = result?.Message ?? "The API response did not contain a valid order list.";
+                    TempData["StatusError"] = OrdersLoadError;
                 }
             }
             catch (Exception ex)
@@ -183,9 +188,8 @@ namespace QamishloDeliveryWeb.Pages
                 Orders =
                     new List<DeliveryOrder>();
 
-                TempData["StatusError"] =
-                    "Connection Error: " +
-                    ex.Message;
+                OrdersLoadError = "Connection Error: " + ex.Message;
+                TempData["StatusError"] = OrdersLoadError;
             }
         }
 
@@ -484,6 +488,8 @@ namespace QamishloDeliveryWeb.Pages
         public int Count { get; set; }
 
         public List<DeliveryOrder>? Orders { get; set; }
+
+        public string? Message { get; set; }
     }
 
 
