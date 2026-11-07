@@ -33,6 +33,9 @@ namespace QamishloDeliveryWeb.Pages
         public List<DeliveryOrder> Orders { get; set; } =
             new List<DeliveryOrder>();
 
+        public List<TransferWorkerOption> TransferWorkers { get; set; } =
+            new List<TransferWorkerOption>();
+
 
         // =====================================================
         // TODAY STATISTICS
@@ -61,7 +64,8 @@ namespace QamishloDeliveryWeb.Pages
             {
                 return Orders.Count(x =>
                     x.Status == "Preparing" ||
-                    x.Status == "Ready"
+                    x.Status == "Ready" ||
+                    x.Status == "OutForDelivery"
                 );
             }
         }
@@ -75,14 +79,17 @@ namespace QamishloDeliveryWeb.Pages
         {
             LoadWorkerSession();
 
-            if (WorkerID == 0)
+            if (WorkerID == 0 ||
+                string.IsNullOrWhiteSpace(HttpContext.Session.GetString("DeliveryWorkerUsername")) ||
+                string.IsNullOrWhiteSpace(HttpContext.Session.GetString("DeliveryWorkerPassword")))
             {
+                HttpContext.Session.Clear();
                 return RedirectToPage("/Login");
             }
 
             await LoadOrdersAsync();
-
             await LoadTodayStatisticsAsync();
+            await LoadTransferTargetsAsync();
 
             return Page();
         }
@@ -111,6 +118,23 @@ namespace QamishloDeliveryWeb.Pages
         }
 
 
+        private HttpClient CreateWorkerApiClient()
+        {
+            HttpClient client = _httpClientFactory.CreateClient("QamishloAPI");
+            string username = HttpContext.Session.GetString("DeliveryWorkerUsername") ?? "";
+            string password = HttpContext.Session.GetString("DeliveryWorkerPassword") ?? "";
+
+            client.DefaultRequestHeaders.Remove("X-Delivery-Worker-Username");
+            client.DefaultRequestHeaders.Remove("X-Delivery-Worker-Password");
+            if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+            {
+                client.DefaultRequestHeaders.Add("X-Delivery-Worker-Username", username);
+                client.DefaultRequestHeaders.Add("X-Delivery-Worker-Password", password);
+            }
+            return client;
+        }
+
+
         // =====================================================
         // LOAD ORDERS
         // =====================================================
@@ -119,10 +143,7 @@ namespace QamishloDeliveryWeb.Pages
         {
             try
             {
-                HttpClient client =
-                    _httpClientFactory.CreateClient(
-                        "QamishloAPI"
-                    );
+                HttpClient client = CreateWorkerApiClient();
 
                 HttpResponseMessage response =
                     await client.GetAsync(
@@ -131,12 +152,11 @@ namespace QamishloDeliveryWeb.Pages
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    Orders =
-                        new List<DeliveryOrder>();
-
+                    string detail = await response.Content.ReadAsStringAsync();
+                    if (detail.Length > 250) detail = detail[..250];
+                    Orders = new List<DeliveryOrder>();
                     TempData["StatusError"] =
-                        "Could not load orders.";
-
+                        $"Could not load orders ({(int)response.StatusCode}): {detail}";
                     return;
                 }
 
@@ -171,6 +191,44 @@ namespace QamishloDeliveryWeb.Pages
 
 
         // =====================================================
+        // LOAD ACTIVE WORKERS FOR ORDER TRANSFER
+        // =====================================================
+
+        private async Task LoadTransferTargetsAsync()
+        {
+            try
+            {
+                using HttpClient client = CreateWorkerApiClient();
+                using HttpResponseMessage response = await client.GetAsync(
+                    $"api/deliveryworkers/{WorkerID}/transfer-targets");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string detail = await response.Content.ReadAsStringAsync();
+                    if (detail.Length > 250) detail = detail[..250];
+                    TransferWorkers = new List<TransferWorkerOption>();
+                    TempData["TransferLoadError"] =
+                        $"Could not load transfer targets ({(int)response.StatusCode}): {detail}";
+                    if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                        TempData["StatusError"] = "Your worker session expired. Please sign in again.";
+                    return;
+                }
+
+                TransferWorkerTargetsResponse? result =
+                    await response.Content.ReadFromJsonAsync<TransferWorkerTargetsResponse>();
+
+                TransferWorkers = result?.Success == true && result.Workers != null
+                    ? result.Workers
+                    : new List<TransferWorkerOption>();
+            }
+            catch
+            {
+                TransferWorkers = new List<TransferWorkerOption>();
+            }
+        }
+
+
+        // =====================================================
         // LOAD TODAY STATISTICS
         // =====================================================
 
@@ -178,10 +236,7 @@ namespace QamishloDeliveryWeb.Pages
         {
             try
             {
-                HttpClient client =
-                    _httpClientFactory.CreateClient(
-                        "QamishloAPI"
-                    );
+                HttpClient client = CreateWorkerApiClient();
 
                 HttpResponseMessage response =
                     await client.GetAsync(
@@ -273,10 +328,7 @@ namespace QamishloDeliveryWeb.Pages
 
             try
             {
-                HttpClient client =
-                    _httpClientFactory.CreateClient(
-                        "QamishloAPI"
-                    );
+                HttpClient client = CreateWorkerApiClient();
 
                 var request = new
                 {
@@ -314,6 +366,63 @@ namespace QamishloDeliveryWeb.Pages
 
                 return RedirectToPage();
             }
+        }
+
+
+        // =====================================================
+        // TRANSFER ORDER TO ANOTHER ACTIVE WORKER
+        // =====================================================
+
+        public async Task<IActionResult> OnPostTransferAsync(
+            int orderID,
+            int newWorkerID,
+            string? notes)
+        {
+            LoadWorkerSession();
+            if (WorkerID <= 0)
+                return RedirectToPage("/Login");
+
+            string username = HttpContext.Session.GetString("DeliveryWorkerUsername") ?? "";
+            string password = HttpContext.Session.GetString("DeliveryWorkerPassword") ?? "";
+            if (orderID <= 0 || newWorkerID <= 0 || newWorkerID == WorkerID ||
+                string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            {
+                TempData["StatusError"] = "Invalid transfer details or expired login. Please sign in again.";
+                return RedirectToPage();
+            }
+
+            try
+            {
+                using HttpClient client = CreateWorkerApiClient();
+                var request = new
+                {
+                    NewWorkerID = newWorkerID,
+                    Username = username,
+                    Password = password,
+                    Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim()
+                };
+
+                using HttpResponseMessage response = await client.PostAsJsonAsync(
+                    $"api/deliveryworkers/{WorkerID}/orders/{orderID}/transfer",
+                    request);
+
+                string body = await response.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["StatusSuccess"] = $"Order #{orderID} was transferred successfully.";
+                }
+                else
+                {
+                    string detail = body.Length > 350 ? body[..350] : body;
+                    TempData["StatusError"] = $"Transfer failed ({(int)response.StatusCode}): {detail}";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["StatusError"] = "Could not connect to the restaurant server: " + ex.Message;
+            }
+
+            return RedirectToPage();
         }
 
 
@@ -394,6 +503,20 @@ namespace QamishloDeliveryWeb.Pages
         public int DeliveredOrders { get; set; }
 
         public decimal TotalAmount { get; set; }
+    }
+
+
+    public class TransferWorkerTargetsResponse
+    {
+        public bool Success { get; set; }
+        public List<TransferWorkerOption>? Workers { get; set; }
+    }
+
+    public class TransferWorkerOption
+    {
+        public int DeliveryWorkerID { get; set; }
+        public string FullName { get; set; } = "";
+        public string? Phone { get; set; }
     }
 
 

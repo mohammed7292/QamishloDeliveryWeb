@@ -1,1800 +1,517 @@
-﻿@page
+
+@page
 @model QamishloDeliveryWeb.Pages.IndexModel
-
+@{
+    ViewData["Title"] = "Qamishlo Delivery";
+    Layout = null;
+}
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="utf-8" />
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
-
-    <title>
-        Qamishlo Delivery
-    </title>
-
-
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#F7F0DF" />
+    <meta name="description" content="Qamishlo Delivery Worker Dashboard" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Qamishlo Delivery</title>
     <style>
-
-        * {
-            box-sizing: border-box;
+        :root {
+            color-scheme: light;
+            --bg:#F7F0DF; --white:#FFFFFF; --cream:#FFF9EC;
+            --line:#E8DCC2; --yellow:#FFD84D; --gold:#9A7100;
+            --ink:#4A3A20; --muted:#786B54;
+            --green:#25834B; --blue:#2878C8; --red:#C34444;
         }
-
-
-        body {
-            margin: 0;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #101010,
-                    #202020
-                );
-
-            color: white;
-
-            min-height: 100vh;
-        }
-
-
-        .container {
-            width: 100%;
-
-            max-width: 650px;
-
-            margin: auto;
-
-            padding: 25px 15px 50px;
-        }
-
-
-        /* ================================================= */
-        /* HEADER */
-        /* ================================================= */
-
-        .header {
-            background:
-                linear-gradient(
-                    135deg,
-                    #ff9d00,
-                    #ffc52e
-                );
-
-            border-radius: 25px;
-
-            padding: 25px;
-
-            margin-bottom: 18px;
-
-            color: white;
-
-            box-shadow:
-                0 10px 30px
-                rgba(255, 165, 0, 0.25);
-        }
-
-
-        .logo {
-            font-size: 25px;
-
-            font-weight: bold;
-
-            letter-spacing: 1px;
-        }
-
-
-        .welcome {
-            margin-top: 20px;
-
-            font-size: 26px;
-
-            font-weight: bold;
-        }
-
-
-        .worker-name {
-            margin-top: 7px;
-
-            font-size: 17px;
-
-            opacity: 0.95;
-        }
-
-
-        /* ================================================= */
-        /* STATISTICS */
-        /* ================================================= */
-
-        .stats {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 12px;
-
-            margin-bottom: 12px;
-        }
-
-
-        .stat-card {
-            background:
-                linear-gradient(
-                    145deg,
-                    #272727,
-                    #171717
-                );
-
-            border:
-                1px solid
-                rgba(255,255,255,0.15);
-
-            border-radius: 22px;
-
-            padding: 20px 10px;
-
-            text-align: center;
-
-            box-shadow:
-                0 8px 25px
-                rgba(0,0,0,0.25);
-        }
-
-
-        .stat-icon {
-            font-size: 30px;
-
-            margin-bottom: 7px;
-        }
-
-
-        .stat-title {
-            font-size: 14px;
-
-            color: #dddddd;
-
-            margin-bottom: 8px;
-        }
-
-
-        .stat-number {
-            font-size: 28px;
-
-            font-weight: bold;
-
-            color: #ffb21c;
-        }
-
-
-        .stat-money {
-            font-size: 21px;
-
-            font-weight: bold;
-
-            color: #ffb21c;
-
-            white-space: nowrap;
-        }
-
-
-        /* ================================================= */
-        /* REFRESH */
-        /* ================================================= */
-
-        .refresh-button {
-            width: 100%;
-
-            border: none;
-
-            border-radius: 15px;
-
-            padding: 14px;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    #343434,
-                    #4a4a4a
-                );
-
-            color: white;
-
-            font-size: 16px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-
-            margin-bottom: 25px;
-        }
-
-
-        .refresh-button:hover {
-            background: #555;
-        }
-
-
-        /* ================================================= */
-        /* TITLE */
-        /* ================================================= */
-
-        .section-title {
-            font-size: 22px;
-
-            font-weight: bold;
-
-            margin:
-                15px 5px;
-        }
-
-
-        /* ================================================= */
-        /* MESSAGES */
-        /* ================================================= */
-
-        .success {
-            background: #218c4a;
-
-            padding: 14px;
-
-            border-radius: 15px;
-
-            text-align: center;
-
-            margin-bottom: 15px;
-
-            font-weight: bold;
-        }
-
-
-        .error {
-            background: #a83232;
-
-            padding: 14px;
-
-            border-radius: 15px;
-
-            text-align: center;
-
-            margin-bottom: 15px;
-
-            font-weight: bold;
-
-            word-break: break-word;
-        }
-
-
-        /* ================================================= */
-        /* ORDER CARD */
-        /* ================================================= */
-
-        .order-card {
-            background:
-                linear-gradient(
-                    145deg,
-                    #303030,
-                    #1d1d1d
-                );
-
-            border:
-                1px solid
-                rgba(255,255,255,0.12);
-
-            border-radius: 22px;
-
-            padding: 20px;
-
-            margin-bottom: 18px;
-
-            box-shadow:
-                0 8px 25px
-                rgba(0,0,0,0.3);
-        }
-
-
-        .order-top {
-            display: flex;
-
-            justify-content:
-                space-between;
-
-            align-items: center;
-
-            margin-bottom: 15px;
-        }
-
-
-        .order-number {
-            font-size: 20px;
-
-            font-weight: bold;
-        }
-
-
-        .status {
-            padding:
-                7px 12px;
-
-            border-radius: 20px;
-
-            background: #ff9f19;
-
-            color: white;
-
-            font-size: 13px;
-
-            font-weight: bold;
-        }
-
-
-        .info {
-            margin:
-                10px 0;
-
-            color: #eeeeee;
-
-            line-height: 1.6;
-        }
-
-
-        .info strong {
-            color: white;
-        }
-
-
-        /* ================================================= */
-        /* CUSTOMER LOCATION */
-        /* ================================================= */
-
-        .location-box {
-            margin-top: 14px;
-
-            padding: 15px;
-
-            border-radius: 17px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #252525,
-                    #191919
-                );
-
-            border:
-                1px solid
-                rgba(255, 173, 24, 0.30);
-
-            box-shadow:
-                inset 0 0 0 1px
-                rgba(255,255,255,0.03);
-        }
-
-
-        .location-header {
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-            margin-bottom: 11px;
-        }
-
-
-        .location-icon {
-            width: 34px;
-
-            height: 34px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            border-radius: 10px;
-
-            background:
-                rgba(255, 173, 24, 0.15);
-
-            font-size: 18px;
-        }
-
-
-        .location-title {
-            font-size: 15px;
-
-            font-weight: bold;
-
-            color: #ffb21c;
-        }
-
-
-        .location-subtitle {
-            font-size: 11px;
-
-            color: #999;
-
-            margin-top: 2px;
-        }
-
-
-        .location-coordinates {
-            background: #111;
-
-            border:
-                1px solid
-                rgba(255,255,255,0.10);
-
-            border-radius: 11px;
-
-            padding: 11px;
-
-            color: #eeeeee;
-
-            font-size: 14px;
-
-            font-weight: bold;
-
-            text-align: center;
-
-            letter-spacing: 0.3px;
-
-            margin-bottom: 10px;
-        }
-
-
-        .location-buttons {
-            display: grid;
-
-            grid-template-columns:
-                1.3fr 1fr;
-
-            gap: 8px;
-        }
-
-
-        .waze-button,
-        .copy-location-button {
-            border: none;
-
-            border-radius: 11px;
-
-            padding: 12px 8px;
-
-            font-size: 13px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-
-            color: white;
-
-            text-align: center;
-        }
-
-
-        .waze-button {
-            background:
-                linear-gradient(
-                    90deg,
-                    #0875e1,
-                    #1d9bf0
-                );
-
-            box-shadow:
-                0 5px 15px
-                rgba(29,155,240,0.20);
-        }
-
-
-        .waze-button:hover {
-            filter: brightness(1.1);
-        }
-
-
-        .copy-location-button {
-            background:
-                linear-gradient(
-                    90deg,
-                    #3b3b3b,
-                    #505050
-                );
-        }
-
-
-        .copy-location-button:hover {
-            background: #5b5b5b;
-        }
-
-
-        .location-missing {
-            margin-top: 14px;
-
-            padding: 12px;
-
-            border-radius: 13px;
-
-            background: #242424;
-
-            border:
-                1px solid
-                rgba(255,255,255,0.08);
-
-            color: #999;
-
-            font-size: 13px;
-
-            text-align: center;
-        }
-
-
-        /* ================================================= */
-        /* TOTAL */
-        /* ================================================= */
-
-        .total {
-            border-top:
-                1px solid
-                rgba(255,255,255,0.15);
-
-            margin-top: 15px;
-
-            padding-top: 15px;
-
-            display: flex;
-
-            justify-content:
-                space-between;
-
-            align-items: center;
-        }
-
-
-        .total-label {
-            font-size: 15px;
-        }
-
-
-        .total-value {
-            color: #ffad18;
-
-            font-size: 21px;
-
-            font-weight: bold;
-        }
-
-
-        /* ================================================= */
-        /* BUTTONS */
-        /* ================================================= */
-
-        .buttons {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 10px;
-
-            margin-top: 15px;
-        }
-
-
-        .button {
-            display: block;
-
-            width: 100%;
-
-            padding: 13px 8px;
-
-            border: none;
-
-            border-radius: 13px;
-
-            text-align: center;
-
-            text-decoration: none;
-
-            font-size: 14px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-
-            color: white;
-        }
-
-
-        .whatsapp {
-            background: #20b858;
-        }
-
-
-        .accept {
-            background: #ff9f19;
-        }
-
-
-        .ready {
-            background: #387ed8;
-        }
-
-
-        .delivered {
-            background: #249653;
-        }
-
-
-        .details {
-            background: #444;
-
-            border:
-                1px solid
-                #666;
-        }
-
-
-        .logout {
-            display: block;
-
-            width: 100%;
-
-            margin-top: 20px;
-
-            padding: 15px;
-
-            background:
-                #292929;
-
-            color: #ffad18;
-
-            border:
-                1px solid
-                rgba(255,255,255,0.12);
-
-            border-radius: 15px;
-
-            text-align: center;
-
-            text-decoration: none;
-
-            font-weight: bold;
-        }
-
-
-        /* ================================================= */
-        /* EMPTY */
-        /* ================================================= */
-
-        .empty {
-            background:
-                linear-gradient(
-                    145deg,
-                    #303030,
-                    #1d1d1d
-                );
-
-            border-radius: 22px;
-
-            padding: 40px 20px;
-
-            text-align: center;
-
-            margin-bottom: 20px;
-        }
-
-
-        .empty-icon {
-            font-size: 45px;
-
-            margin-bottom: 15px;
-        }
-
-
-        .empty-title {
-            font-size: 18px;
-
-            font-weight: bold;
-
-            margin-bottom: 10px;
-        }
-
-
-        .empty-text {
-            color: #aaaaaa;
-
-            line-height: 1.5;
-        }
-
-
-        /* ================================================= */
-        /* MODAL */
-        /* ================================================= */
-
-        .modal {
-            display: none;
-
-            position: fixed;
-
-            inset: 0;
-
-            background:
-                rgba(0,0,0,0.75);
-
-            align-items: center;
-
-            justify-content: center;
-
-            padding: 20px;
-
-            z-index: 999;
-        }
-
-
-        .modal-content {
-            width: 100%;
-
-            max-width: 500px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #333,
-                    #202020
-                );
-
-            border-radius: 22px;
-
-            padding: 25px;
-
-            box-shadow:
-                0 20px 60px
-                rgba(0,0,0,0.6);
-        }
-
-
-        .modal-title {
-            color: #ffb21c;
-
-            font-size: 24px;
-
-            font-weight: bold;
-
-            margin-bottom: 18px;
-        }
-
-
-        .modal-line {
-            margin:
-                10px 0;
-
-            line-height: 1.6;
-        }
-
-
-        .modal-location {
-            margin-top: 15px;
-
-            padding: 14px;
-
-            border-radius: 14px;
-
-            background: #181818;
-
-            border:
-                1px solid
-                rgba(255,173,24,0.25);
-        }
-
-
-        .modal-location-title {
-            color: #ffb21c;
-
-            font-weight: bold;
-
-            margin-bottom: 8px;
-        }
-
-
-        .modal-location-value {
-            background: #101010;
-
-            padding: 10px;
-
-            border-radius: 9px;
-
-            text-align: center;
-
-            font-weight: bold;
-
-            margin-bottom: 9px;
-        }
-
-
-        .modal-waze {
-            display: block;
-
-            width: 100%;
-
-            padding: 12px;
-
-            border: none;
-
-            border-radius: 11px;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    #0875e1,
-                    #1d9bf0
-                );
-
-            color: white;
-
-            text-decoration: none;
-
-            text-align: center;
-
-            font-weight: bold;
-
-            cursor: pointer;
-        }
-
-
-        .close-button {
-            width: 100%;
-
-            margin-top: 20px;
-
-            padding: 13px;
-
-            border: none;
-
-            border-radius: 13px;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    #ff9f19,
-                    #ffc52e
-                );
-
-            color: white;
-
-            font-weight: bold;
-
-            cursor: pointer;
-        }
-
-
-        /* ================================================= */
-        /* MOBILE */
-        /* ================================================= */
-
-        @@media (max-width: 500px)
-        {
-            .container {
-                padding:
-                    15px 10px 40px;
-            }
-
-            .header {
-                padding: 20px;
-            }
-
-            .welcome {
-                font-size: 23px;
-            }
-
-            .stats {
-                gap: 8px;
-            }
-
-            .stat-card {
-                padding: 17px 5px;
-            }
-
-            .stat-money {
-                font-size: 18px;
-            }
-
-            .location-buttons {
-                grid-template-columns: 1fr;
-            }
-        }
-
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{margin:0;min-height:100vh;min-height:100dvh;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(ellipse at top,#FFF9E9,transparent 55%),var(--bg);color:var(--ink)}
+        button,input{font:inherit}
+        button,a{-webkit-tap-highlight-color:transparent}
+        .container{width:100%;max-width:760px;margin:auto;padding:20px 16px calc(35px + env(safe-area-inset-bottom))}
+        .header{position:relative;overflow:hidden;padding:25px;margin-bottom:18px;border:1px solid #E6C65B;border-radius:25px;background:linear-gradient(125deg,#FFF0B8,#FFD84D);box-shadow:0 12px 35px #B88A1220}
+        .header:after{content:"🛵";position:absolute;right:14px;bottom:4px;font-size:76px;opacity:.18;transform:rotate(-10deg);pointer-events:none}
+        .brand-row{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+        .brand-icon{display:grid;place-items:center;width:48px;height:48px;flex-shrink:0;border-radius:15px;background:var(--ink);color:var(--yellow);font-weight:900;font-size:18px}
+        .brand-name{font-size:18px;line-height:1.3;font-weight:900;letter-spacing:.3px}
+        .brand-subtitle{margin-top:4px;font-size:12px;opacity:.8}
+        .welcome{position:relative;z-index:1;margin-top:25px;font-size:25px;line-height:1.25;font-weight:800}
+        .worker-name{position:relative;z-index:1;margin-top:8px;font-size:15px;font-weight:700;overflow-wrap:anywhere}
+        .header-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;position:relative;z-index:1;flex-wrap:wrap}
+        .shift-label{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:30px;background:#FFFFFF8C;font-size:12px;font-weight:700}
+        .section-title{margin:24px 3px 13px;font-size:21px;font-weight:800;letter-spacing:-.3px}
+        .section-subtitle{margin:-6px 3px 15px;color:var(--muted);font-size:13px;line-height:1.5}
+        .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+        .stat-card{min-width:0;padding:17px;border:1px solid var(--line);border-radius:20px;background:var(--white);box-shadow:0 8px 22px #6E54140D}
+        .stat-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:#FFF2B8;font-size:21px}
+        .stat-title{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.4}
+        .stat-number{margin-top:5px;color:var(--gold);font-size:30px;font-weight:900;overflow-wrap:anywhere}
+        .stat-money{font-size:clamp(17px,4.5vw,23px)}
+        .refresh-button{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:49px;padding:13px;border:1px solid #E5D6B7;border-radius:15px;background:var(--white);color:var(--ink);font-weight:800;text-decoration:none;cursor:pointer}
+        .refresh-button:hover{background:#FFF8E6}
+        .message{padding:14px 15px;margin-bottom:13px;border-radius:14px;line-height:1.5;font-size:14px;font-weight:700;overflow-wrap:anywhere}
+        .success{border:1px solid #8ACAA0;background:#EAF8EE;color:#205D34}
+        .error{border:1px solid #E4A2A2;background:#FFF0F0;color:#8C2929}
+        .order-filters{display:flex;gap:8px;overflow-x:auto;padding:2px 0 9px;margin-bottom:9px}
+        .filter-button{flex:0 0 auto;padding:10px 14px;border:1px solid #E4D8BE;border-radius:30px;background:var(--white);color:#6D604B;font-size:12px;font-weight:800;cursor:pointer}
+        .filter-button.active{border-color:#D6AA00;background:#FFE887;color:var(--ink)}
+        .order-card{padding:19px;margin-bottom:15px;border:1px solid var(--line);border-radius:22px;background:var(--white);box-shadow:0 9px 26px #6E54140D;min-width:0}
+        .order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding-bottom:15px;border-bottom:1px solid #EFE6D5}
+        .order-label{color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+        .order-number{margin-top:5px;font-size:22px;font-weight:900;overflow-wrap:anywhere}
+        .status{display:inline-block;flex:0 0 auto;max-width:48%;padding:8px 11px;border:1px solid #E6C34B;border-radius:30px;background:#FFF5CC;color:#795A00;font-size:11px;font-weight:800;text-align:center;overflow-wrap:anywhere}
+        .status[data-status="Delivered"]{color:#216A3A;background:#E8F7EC;border-color:#A6D9B4}
+        .status[data-status="Ready"]{color:#205B96;background:#EAF3FF;border-color:#B5D5F7}
+        .order-info{display:grid;gap:11px;padding:16px 0 3px}
+        .info{display:flex;align-items:flex-start;gap:9px;color:#5D503B;font-size:13px;line-height:1.6;overflow-wrap:anywhere;min-width:0}
+        .info-icon{flex:0 0 21px;text-align:center}
+        .info-content{min-width:0}
+        .info strong{color:var(--ink)}
+        .location-box{padding:15px;margin-top:15px;border:1px solid #E6C75B;border-radius:17px;background:#FFFBF0}
+        .location-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+        .location-icon{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;background:#FFF0B3;font-size:19px}
+        .location-title{color:#896600;font-size:14px;font-weight:900}
+        .location-subtitle{margin-top:4px;color:#8B806B;font-size:11px}
+        .location-coordinates{padding:12px;margin-bottom:10px;border:1px solid #EDE3D0;border-radius:11px;background:white;text-align:center;font-size:13px;font-weight:700;overflow-wrap:anywhere}
+        .location-buttons{display:grid;grid-template-columns:1.2fr 1fr;gap:9px}
+        .waze-button,.copy-location-button{min-height:45px;padding:11px 8px;border:0;border-radius:11px;color:white;font-size:12px;font-weight:800;cursor:pointer}
+        .waze-button{background:var(--blue)}
+        .copy-location-button{background:#6C604B}
+        .location-missing{padding:12px;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#FFFBF3;color:#8B806B;font-size:12px;text-align:center}
+        .total{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:17px;padding-top:16px;border-top:1px solid #EFE6D5}
+        .total-label{color:var(--muted);font-size:13px}
+        .total-value{color:var(--gold);font-size:21px;font-weight:900;text-align:right;overflow-wrap:anywhere}
+        .buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:15px}
+        .button{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;min-height:45px;padding:11px 8px;border:1px solid transparent;border-radius:12px;color:white;text-align:center;text-decoration:none;font-size:12px;font-weight:800;line-height:1.4;cursor:pointer;overflow-wrap:anywhere}
+        .button:hover{filter:brightness(1.05)}
+        .buttons form{min-width:0}
+        .whatsapp{background:#25834B}
+        .accept{background:var(--yellow);color:var(--ink);border-color:#E3BE34}
+        .ready{background:var(--blue)}
+        .delivered{background:var(--green)}
+        .details{background:#F3EBDD;color:var(--ink);border-color:#E4D8C2}
+        .transfer{background:#7C5AC7;color:white;grid-column:1/-1}
+        .empty{padding:35px 22px;border:1px solid var(--line);border-radius:22px;background:var(--white);text-align:center}
+        .empty-icon{font-size:42px;margin-bottom:13px}
+        .empty-title{font-size:18px;font-weight:900}
+        .empty-text{max-width:300px;margin:9px auto 0;color:var(--muted);font-size:13px;line-height:1.7}
+        .empty-filter{display:none}
+        .logout{display:flex;justify-content:center;align-items:center;width:100%;min-height:49px;margin-top:25px;padding:13px;border:1px solid #E6BDBD;border-radius:14px;background:#FFF0F0;color:#9C3232;text-decoration:none;font-weight:800}
+        .modal{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:15px;background:#4A3A2080;overflow-y:auto}
+        .modal-content{width:100%;max-width:500px;max-height:90dvh;overflow-y:auto;padding:22px;border:1px solid #E5D8BE;border-radius:22px;background:white;box-shadow:0 20px 60px #49391930}
+        .modal-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px}
+        .modal-title{color:#8A6800;font-size:22px;font-weight:900}
+        .modal-line{margin:12px 0;color:#5D503B;font-size:13px;line-height:1.7;overflow-wrap:anywhere;white-space:pre-wrap}
+        .modal-line strong{color:var(--ink)}
+        .modal-location{margin-top:15px;padding:13px;border:1px solid #E6C75B;border-radius:14px;background:#FFFBF0}
+        .modal-location-title{margin-bottom:10px;color:#896600;font-weight:900}
+        .modal-location-value{padding:10px;margin-bottom:10px;border-radius:9px;background:white;border:1px solid #EFE6D5;text-align:center;font-weight:700;overflow-wrap:anywhere}
+        .modal-waze{display:block;width:100%;padding:13px;border:0;border-radius:11px;background:var(--blue);color:white;text-align:center;font-weight:800;cursor:pointer}
+        .close-button{width:100%;min-height:47px;margin-top:20px;padding:12px;border:0;border-radius:12px;background:var(--yellow);color:var(--ink);font-weight:900;cursor:pointer}
+        .transfer-form{display:grid;gap:13px}
+        .transfer-form label{display:block;margin-bottom:7px;color:var(--ink);font-size:13px;font-weight:800}
+        .transfer-form select,.transfer-form textarea{display:block;width:100%;min-height:47px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#FFFCF5;color:var(--ink);font:inherit}
+        .transfer-form textarea{min-height:88px;resize:vertical}
+        .transfer-submit{width:100%;min-height:48px;border:0;border-radius:12px;background:#7C5AC7;color:white;font-weight:900;cursor:pointer}
+        .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));z-index:10000;width:max-content;max-width:calc(100% - 30px);padding:13px 17px;border:1px solid #E5D8BE;border-radius:13px;background:white;color:var(--ink);font-size:13px;text-align:center;box-shadow:0 10px 30px #49391920;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+        .toast.show{transform:translate(-50%,0);opacity:1}
+        @@media(min-width:600px){.container{padding-top:28px}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.stat-card{padding:15px 12px}.stat-number{font-size:27px}.stat-money{font-size:17px}}
+        @@media(max-width:380px){.container{padding:12px 9px 30px}.header{padding:19px;border-radius:21px}.welcome{font-size:22px}.stat-card{padding:13px 10px}.stat-number{font-size:26px}.order-card{padding:15px}.buttons{gap:7px}.button{font-size:11px}.location-buttons{grid-template-columns:1fr}}
+        @@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
     </style>
-
 </head>
-
-
 <body>
-
-<div class="container">
-
-
-    <!-- ================================================= -->
-    <!-- HEADER -->
-    <!-- ================================================= -->
-
-    <div class="header">
-
-        <div class="logo">
-            QAMISHLO DELIVERY
+<main class="container">
+    <header class="header">
+        <div class="brand-row">
+            <div class="brand-icon">QF</div>
+            <div>
+                <div class="brand-name">QAMISHLO DELIVERY</div>
+                <div class="brand-subtitle">Fast • Reliable • Professional</div>
+            </div>
         </div>
-
-        <div class="welcome">
-            👋 Welcome
+        <div class="welcome">Welcome back 👋</div>
+        <div class="worker-name">@Model.WorkerName</div>
+        <div class="header-bottom">
+            <div class="shift-label">🛵 Delivery dashboard</div>
+            <div class="shift-label">● Active session</div>
         </div>
-
-        <div class="worker-name">
-            @Model.WorkerName
-        </div>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- MESSAGES -->
-    <!-- ================================================= -->
+    </header>
 
     @if (TempData["StatusSuccess"] != null)
     {
-        <div class="success">
-            ✅ @TempData["StatusSuccess"]
-        </div>
+        <div class="message success" role="status">✅ @TempData["StatusSuccess"]</div>
     }
-
-
     @if (TempData["StatusError"] != null)
     {
-        <div class="error">
-            ❌ @TempData["StatusError"]
-        </div>
+        <div class="message error" role="alert">❌ @TempData["StatusError"]</div>
     }
 
+    <div class="section-title">Today's Overview</div>
+    <div class="section-subtitle">A quick look at your delivery activity.</div>
 
-    <!-- ================================================= -->
-    <!-- STATISTICS -->
-    <!-- ================================================= -->
+    <section class="stats">
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-title">Assigned Orders</div><div class="stat-number">@Model.AssignedOrdersCount</div></div>
+        <div class="stat-card"><div class="stat-icon">🛵</div><div class="stat-title">Active Deliveries</div><div class="stat-number">@Model.ActiveDeliveriesCount</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-title">Delivered Today</div><div class="stat-number">@Model.DeliveredOrdersToday</div></div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-title">Today's Total</div><div class="stat-number stat-money">@Model.TotalAmountToday.ToString("N0") IQD</div></div>
+    </section>
 
-    <div class="stats">
-
-
-        <div class="stat-card">
-
-            <div class="stat-icon">
-                📦
-            </div>
-
-            <div class="stat-title">
-                Assigned Orders
-            </div>
-
-            <div class="stat-number">
-                @Model.AssignedOrdersCount
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <div class="stat-icon">
-                🛵
-            </div>
-
-            <div class="stat-title">
-                Active Deliveries
-            </div>
-
-            <div class="stat-number">
-                @Model.ActiveDeliveriesCount
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <div class="stat-icon">
-                ✅
-            </div>
-
-            <div class="stat-title">
-                Delivered Today
-            </div>
-
-            <div class="stat-number">
-                @Model.DeliveredOrdersToday
-            </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <div class="stat-icon">
-                💰
-            </div>
-
-            <div class="stat-title">
-                Today's Total
-            </div>
-
-            <div class="stat-money">
-                @Model.TotalAmountToday.ToString("N0") IQD
-            </div>
-
-        </div>
-
+    <div style="display:grid;gap:10px;margin-bottom:20px">
+        <form method="get">
+            <button type="submit" class="refresh-button">↻ Refresh dashboard and orders</button>
+        </form>
+        <a href="/Reports" class="refresh-button">📊 Daily Reports &amp; Delivered Orders</a>
     </div>
 
+    <div class="section-title">My Orders</div>
+    <div class="section-subtitle">View order details, update status, or prepare to transfer an order.</div>
 
-    <!-- ================================================= -->
-    <!-- REFRESH -->
-    <!-- ================================================= -->
-
-    <form method="get">
-
-        <button
-            type="submit"
-            class="refresh-button">
-
-            🔄 Refresh
-
-        </button>
-
-    </form>
-
-
-    <!-- ================================================= -->
-    <!-- ORDERS -->
-    <!-- ================================================= -->
-
-    <div class="section-title">
-        My Orders
-    </div>
-
+    <nav class="order-filters" aria-label="Filter orders">
+        <button type="button" class="filter-button active" data-filter="All">All orders</button>
+        <button type="button" class="filter-button" data-filter="New">New</button>
+        <button type="button" class="filter-button" data-filter="Preparing">Preparing</button>
+        <button type="button" class="filter-button" data-filter="Ready">Ready</button>
+        <button type="button" class="filter-button" data-filter="Delivered">Delivered</button>
+    </nav>
 
     @if (Model.Orders.Count == 0)
     {
         <div class="empty">
-
-            <div class="empty-icon">
-                📦
-            </div>
-
-            <div class="empty-title">
-                No orders assigned
-            </div>
-
-            <div class="empty-text">
-                When the restaurant assigns an order
-                to you, it will appear here.
-            </div>
-
+            <div class="empty-icon">📦</div>
+            <div class="empty-title">No orders assigned yet</div>
+            <div class="empty-text">When the restaurant assigns an order to you, it will appear here. Use Refresh to check again.</div>
         </div>
     }
     else
     {
         foreach (var order in Model.Orders)
         {
-
-            /*
-             * =====================================================
-             * EXTRACT CUSTOMER LOCATION
-             *
-             * The customer app saves:
-             *
-             * Location: 36.120705, 44.061567
-             *
-             * inside Notes.
-             * =====================================================
-             */
-
             string latitude = "";
             string longitude = "";
             string location = "";
 
             if (!string.IsNullOrWhiteSpace(order.Notes))
             {
-                var locationMatch =
-                    System.Text.RegularExpressions.Regex.Match(
-                        order.Notes,
-                        @"Location:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)",
-                        System.Text.RegularExpressions.RegexOptions.IgnoreCase
-                    );
+                var locationMatch = System.Text.RegularExpressions.Regex.Match(
+                    order.Notes,
+                    @"Location:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
                 if (locationMatch.Success)
                 {
-                    latitude =
-                        locationMatch.Groups[1].Value;
-
-                    longitude =
-                        locationMatch.Groups[2].Value;
-
-                    location =
-                        $"{latitude},{longitude}";
+                    latitude = locationMatch.Groups[1].Value;
+                    longitude = locationMatch.Groups[2].Value;
+                    location = $"{latitude},{longitude}";
                 }
             }
 
+            var safeStatus = order.Status ?? "";
 
-            <div class="order-card">
-
-
-                <!-- ORDER TOP -->
-
+            <article class="order-card" data-order-status="@safeStatus">
                 <div class="order-top">
-
-                    <div class="order-number">
-                        Order #@order.OrderID
-                    </div>
-
-                    <div class="status">
-                        @order.Status
-                    </div>
-
+                    <div><div class="order-label">Order number</div><div class="order-number">#@order.OrderID</div></div>
+                    <span class="status" data-status="@safeStatus">@safeStatus</span>
                 </div>
 
-
-                <!-- CUSTOMER -->
-
-                <div class="info">
-                    👤
-                    <strong>Customer:</strong>
-                    @order.CustomerName
+                <div class="order-info">
+                    <div class="info"><span class="info-icon">👤</span><div class="info-content"><strong>Customer:</strong> @order.CustomerName</div></div>
+                    @if (!string.IsNullOrWhiteSpace(order.CustomerPhone))
+                    {
+                        <div class="info"><span class="info-icon">📞</span><div class="info-content"><strong>Phone:</strong> @order.CustomerPhone</div></div>
+                    }
+                    <div class="info"><span class="info-icon">🛵</span><div class="info-content"><strong>Type:</strong> @order.OrderType</div></div>
+                    @if (!string.IsNullOrWhiteSpace(order.ZoneName))
+                    {
+                        <div class="info"><span class="info-icon">📍</span><div class="info-content"><strong>Zone:</strong> @order.ZoneName</div></div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(order.DeliveryAddress))
+                    {
+                        <div class="info"><span class="info-icon">🏠</span><div class="info-content"><strong>Address:</strong> @order.DeliveryAddress</div></div>
+                    }
+                    <div class="info"><span class="info-icon">🕒</span><div class="info-content"><strong>Order time:</strong> @order.OrderDate.ToString("yyyy-MM-dd HH:mm")</div></div>
+                    @if (!string.IsNullOrWhiteSpace(order.Notes))
+                    {
+                        <div class="info"><span class="info-icon">📝</span><div class="info-content"><strong>Notes:</strong> @order.Notes</div></div>
+                    }
                 </div>
-
-
-                <!-- PHONE -->
-
-                @if (!string.IsNullOrWhiteSpace(
-                    order.CustomerPhone))
-                {
-                    <div class="info">
-                        📞
-                        <strong>Phone:</strong>
-                        @order.CustomerPhone
-                    </div>
-                }
-
-
-                <!-- TYPE -->
-
-                <div class="info">
-                    🛵
-                    <strong>Type:</strong>
-                    @order.OrderType
-                </div>
-
-
-                <!-- ZONE -->
-
-                @if (!string.IsNullOrWhiteSpace(
-                    order.ZoneName))
-                {
-                    <div class="info">
-                        📍
-                        <strong>Zone:</strong>
-                        @order.ZoneName
-                    </div>
-                }
-
-
-                <!-- ADDRESS -->
-
-                @if (!string.IsNullOrWhiteSpace(
-                    order.DeliveryAddress))
-                {
-                    <div class="info">
-                        📌
-                        <strong>Address:</strong>
-                        @order.DeliveryAddress
-                    </div>
-                }
-
-
-                <!-- TIME -->
-
-                <div class="info">
-                    🕐
-                    <strong>Time:</strong>
-                    @order.OrderDate.ToString(
-                        "yyyy-MM-dd HH:mm")
-                </div>
-
-
-                <!-- NOTES -->
-
-                @if (!string.IsNullOrWhiteSpace(
-                    order.Notes))
-                {
-                    <div class="info">
-                        📝
-                        <strong>Notes:</strong>
-                        @order.Notes
-                    </div>
-                }
-
-
-                <!-- ================================================= -->
-                <!-- CUSTOMER LOCATION -->
-                <!-- ================================================= -->
 
                 @if (!string.IsNullOrWhiteSpace(location))
                 {
-
-                    <div class="location-box">
-
-
+                    <section class="location-box">
                         <div class="location-header">
-
-                            <div class="location-icon">
-                                📍
-                            </div>
-
-                            <div>
-
-                                <div class="location-title">
-                                    Customer Location
-                                </div>
-
-                                <div class="location-subtitle">
-                                    GPS coordinates
-                                </div>
-
-                            </div>
-
+                            <div class="location-icon">📍</div>
+                            <div><div class="location-title">Customer Location</div><div class="location-subtitle">GPS coordinates</div></div>
                         </div>
-
-
-                        <div class="location-coordinates">
-
-                            @latitude, @longitude
-
-                        </div>
-
-
+                        <div class="location-coordinates">@latitude, @longitude</div>
                         <div class="location-buttons">
-
-
-                            <!-- WAZE -->
-
-                            <button
-                                type="button"
-                                class="waze-button"
-                                onclick="openWaze(
-                                    '@latitude',
-                                    '@longitude'
-                                )">
-
-                                🧭 Navigate with Waze
-
-                            </button>
-
-
-                            <!-- COPY -->
-
-                            <button
-                                type="button"
-                                class="copy-location-button"
-                                onclick="copyLocation(
-                                    '@location'
-                                )">
-
-                                📋 Copy Location
-
-                            </button>
-
-
+                            <button type="button" class="waze-button" data-action="waze" data-lat="@latitude" data-lon="@longitude">🧭 Navigate with Waze</button>
+                            <button type="button" class="copy-location-button" data-action="copy-location" data-location="@location">📋 Copy location</button>
                         </div>
-
-                    </div>
-
+                    </section>
                 }
                 else
                 {
-
-                    <div class="location-missing">
-
-                        📍 Customer location not provided
-
-                    </div>
-
+                    <div class="location-missing">📍 Customer location not provided</div>
                 }
 
-
-                <!-- TOTAL -->
-
-                <div class="total">
-
-                    <div class="total-label">
-                        Total
-                    </div>
-
-                    <div class="total-value">
-
-                        @order.TotalAmount.ToString("N0")
-                        IQD
-
-                    </div>
-
-                </div>
-
-
-                <!-- BUTTONS -->
+                <div class="total"><div class="total-label">Order total</div><div class="total-value">@order.TotalAmount.ToString("N0") IQD</div></div>
 
                 <div class="buttons">
-
-
-                    @if (!string.IsNullOrWhiteSpace(
-                        order.CustomerPhone))
+                    @if (!string.IsNullOrWhiteSpace(order.CustomerPhone))
                     {
-                        <a
-                            href="@Model.GetWhatsAppUrl(
-                                order.CustomerPhone)"
-                            target="_blank"
-                            class="button whatsapp">
-
-                            💬 WhatsApp
-
-                        </a>
+                        <a href="@Model.GetWhatsAppUrl(order.CustomerPhone)" target="_blank" rel="noopener noreferrer" class="button whatsapp">💬 WhatsApp customer</a>
                     }
-
-
-                    <!-- NEW → PREPARING -->
-
                     @if (order.Status == "New")
                     {
-                        <form
-                            method="post"
-                            asp-page-handler="Status">
-
-                            <input
-                                type="hidden"
-                                name="orderID"
-                                value="@order.OrderID" />
-
-                            <input
-                                type="hidden"
-                                name="status"
-                                value="Preparing" />
-
-                            <button
-                                type="submit"
-                                class="button accept">
-
-                                ✅ Accept Order
-
-                            </button>
-
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Preparing" />
+                            <button type="submit" class="button accept">✓ Accept order</button>
                         </form>
                     }
-
-
-                    <!-- PREPARING → READY -->
-
                     @if (order.Status == "Preparing")
                     {
-                        <form
-                            method="post"
-                            asp-page-handler="Status">
-
-                            <input
-                                type="hidden"
-                                name="orderID"
-                                value="@order.OrderID" />
-
-                            <input
-                                type="hidden"
-                                name="status"
-                                value="Ready" />
-
-                            <button
-                                type="submit"
-                                class="button ready">
-
-                                📦 Picked Up
-
-                            </button>
-
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Ready" />
+                            <button type="submit" class="button ready">📦 Picked up</button>
                         </form>
                     }
-
-
-                    <!-- READY → DELIVERED -->
-
                     @if (order.Status == "Ready")
                     {
-                        <form
-                            method="post"
-                            asp-page-handler="Status">
-
-                            <input
-                                type="hidden"
-                                name="orderID"
-                                value="@order.OrderID" />
-
-                            <input
-                                type="hidden"
-                                name="status"
-                                value="Delivered" />
-
-                            <button
-                                type="submit"
-                                class="button delivered">
-
-                                🏠 Delivered
-
-                            </button>
-
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Delivered" />
+                            <button type="submit" class="button delivered">✓ Delivered</button>
                         </form>
                     }
 
+                    <button type="button" class="button details"
+                            data-action="details"
+                            data-order-id="@order.OrderID"
+                            data-customer="@order.CustomerName"
+                            data-phone="@order.CustomerPhone"
+                            data-address="@order.DeliveryAddress"
+                            data-notes="@order.Notes"
+                            data-lat="@latitude"
+                            data-lon="@longitude">👁 View details</button>
 
-                    <!-- DETAILS -->
-
-                    <button
-                        type="button"
-                        class="button details"
-                        onclick="showDetails(
-                            @order.OrderID,
-                            '@Html.Raw(
-                                System.Text.Encodings.Web
-                                .JavaScriptEncoder.Default
-                                .Encode(
-                                    order.CustomerName
-                                )
-                            )',
-                            '@Html.Raw(
-                                System.Text.Encodings.Web
-                                .JavaScriptEncoder.Default
-                                .Encode(
-                                    order.CustomerPhone
-                                )
-                            )',
-                            '@Html.Raw(
-                                System.Text.Encodings.Web
-                                .JavaScriptEncoder.Default
-                                .Encode(
-                                    order.DeliveryAddress
-                                )
-                            )',
-                            '@Html.Raw(
-                                System.Text.Encodings.Web
-                                .JavaScriptEncoder.Default
-                                .Encode(
-                                    order.Notes
-                                )
-                            )',
-                            '@latitude',
-                            '@longitude'
-                        )">
-
-                        👁 View Details
-
-                    </button>
-
-
+                    <button type="button" class="button transfer"
+                            data-action="transfer"
+                            data-order-id="@order.OrderID">🔄 Transfer Order to Another Worker</button>
                 </div>
-
-            </div>
+            </article>
         }
+
+        <div id="filteredEmpty" class="empty empty-filter">
+            <div class="empty-icon">🔎</div>
+            <div class="empty-title">No orders in this category</div>
+            <div class="empty-text">Choose another status to see your orders.</div>
+        </div>
     }
 
+    <a href="/Logout" class="logout">🚪 Logout</a>
+</main>
 
-    <!-- ================================================= -->
-    <!-- LOGOUT -->
-    <!-- ================================================= -->
-
-    <a
-        href="/Login"
-        class="logout">
-
-        🚪 Logout
-
-    </a>
-
-
-</div>
-
-
-<!-- ===================================================== -->
-<!-- DETAILS MODAL -->
-<!-- ===================================================== -->
-
-<div
-    id="detailsModal"
-    class="modal"
-    onclick="closeModal(event)">
-
-
-    <div
-        class="modal-content"
-        onclick="event.stopPropagation()">
-
-
-        <div class="modal-title">
-            Order Details
-        </div>
-
-
-        <div
-            id="modalBody">
-        </div>
-
-
-        <button
-            class="close-button"
-            onclick="closeDetails()">
-
-            Close
-
-        </button>
-
+<div id="detailsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+        <div class="modal-heading"><div id="modalTitle" class="modal-title">Order details</div></div>
+        <div id="modalBody"></div>
+        <button type="button" class="close-button" onclick="closeDetails()">Close details</button>
     </div>
-
 </div>
-
-
-<script>
-
-
-    /* ===================================================== */
-    /* OPEN WAZE */
-    /* ===================================================== */
-
-    function openWaze(latitude, longitude)
-    {
-
-        if (!latitude || !longitude)
+<div id="transferModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="transferTitle">
+    <div class="modal-content">
+        <div class="modal-heading"><div id="transferTitle" class="modal-title">Transfer delivery order</div></div>
+        @if (Model.TransferWorkers.Count == 0)
         {
-            alert(
-                "Customer location is not available."
-            );
-
-            return;
-        }
-
-
-        /*
-         * Official Waze URL format:
-         *
-         * https://waze.com/ul?ll=LAT,LON&navigate=yes
-         */
-
-
-        const wazeUrl =
-            "https://waze.com/ul" +
-            "?ll=" +
-            encodeURIComponent(
-                latitude + "," + longitude
-            ) +
-            "&navigate=yes";
-
-
-        /*
-         * Open Waze navigation.
-         */
-
-        window.location.href =
-            wazeUrl;
-
-    }
-
-
-    /* ===================================================== */
-    /* COPY LOCATION */
-    /* ===================================================== */
-
-    function copyLocation(location)
-    {
-
-        if (!location)
-        {
-            return;
-        }
-
-
-        navigator.clipboard
-            .writeText(location)
-            .then(function()
-            {
-
-                alert(
-                    "Customer location copied successfully.\n\n" +
-                    location
-                );
-
-            })
-            .catch(function()
-            {
-
-                alert(
-                    "Customer location:\n\n" +
-                    location
-                );
-
-            });
-
-    }
-
-
-    /* ===================================================== */
-    /* DETAILS MODAL */
-    /* ===================================================== */
-
-    function showDetails(
-        orderID,
-        customer,
-        phone,
-        address,
-        notes,
-        latitude,
-        longitude
-    )
-    {
-
-        let html = "";
-
-
-        html +=
-            "<div class='modal-line'>" +
-            "📦 <strong>Order:</strong> #" +
-            orderID +
-            "</div>";
-
-
-        html +=
-            "<div class='modal-line'>" +
-            "👤 <strong>Customer:</strong> " +
-            customer +
-            "</div>";
-
-
-        if (phone)
-        {
-
-            html +=
-                "<div class='modal-line'>" +
-                "📞 <strong>Phone:</strong> " +
-                phone +
-                "</div>";
-
-        }
-
-
-        if (address)
-        {
-
-            html +=
-                "<div class='modal-line'>" +
-                "📍 <strong>Address:</strong><br>" +
-                address +
-                "</div>";
-
-        }
-
-
-        if (notes)
-        {
-
-            html +=
-                "<div class='modal-line'>" +
-                "📝 <strong>Notes:</strong><br>" +
-                notes +
-                "</div>";
-
-        }
-
-
-        /* ================================================= */
-        /* MODAL LOCATION */
-        /* ================================================= */
-
-        if (latitude && longitude)
-        {
-
-            const location =
-                latitude + "," + longitude;
-
-
-            html +=
-                "<div class='modal-location'>" +
-
-                    "<div class='modal-location-title'>" +
-                        "📍 Customer Location" +
-                    "</div>" +
-
-                    "<div class='modal-location-value'>" +
-                        location +
-                    "</div>" +
-
-                    "<button " +
-                        "type='button' " +
-                        "class='modal-waze' " +
-                        "onclick=\"openWaze('" +
-                            latitude +
-                            "','" +
-                            longitude +
-                        "')\">" +
-
-                        "🧭 Navigate with Waze" +
-
-                    "</button>" +
-
-                "</div>";
-
+            <div class="message error">No other active delivery workers are available to receive this order.</div>
+            <button type="button" class="close-button" onclick="closeTransfer()">Close</button>
         }
         else
         {
-
-            html +=
-                "<div class='modal-line'>" +
-                "📍 <strong>Customer Location:</strong> " +
-                "Not provided" +
-                "</div>";
-
+            <form method="post" asp-page-handler="Transfer" class="transfer-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="transferOrderID" name="orderID" />
+                <div>
+                    <label for="newWorkerID">Choose the receiving worker</label>
+                    <select id="newWorkerID" name="newWorkerID" required>
+                        <option value="">Select a worker</option>
+                        @foreach (var worker in Model.TransferWorkers)
+                        {
+                            <option value="@worker.DeliveryWorkerID">@(string.IsNullOrWhiteSpace(worker.Phone) ? worker.FullName : $"{worker.FullName} — {worker.Phone}")</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="transferNotes">Note (optional)</label>
+                    <textarea id="transferNotes" name="notes" maxlength="500" placeholder="Optional reason or handover note"></textarea>
+                </div>
+                <button type="submit" class="transfer-submit">Confirm transfer</button>
+                <button type="button" class="close-button" onclick="closeTransfer()">Cancel</button>
+            </form>
         }
+    </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-
-        document.getElementById(
-            "modalBody"
-        ).innerHTML = html;
-
-
-        document.getElementById(
-            "detailsModal"
-        ).style.display = "flex";
-
-    }
-
-
-    /* ===================================================== */
-    /* CLOSE MODAL */
-    /* ===================================================== */
-
-    function closeDetails()
-    {
-
-        document.getElementById(
-            "detailsModal"
-        ).style.display = "none";
-
-    }
-
-
-    /* ===================================================== */
-    /* CLOSE WHEN CLICK OUTSIDE */
-    /* ===================================================== */
-
-    function closeModal(event)
-    {
-
-        if (
-            event.target.id ===
-            "detailsModal"
-        )
-        {
-
-            closeDetails();
-
+<script>
+    function openWaze(latitude, longitude) {
+        if (!latitude || !longitude) { showToast("Customer location is not available."); return; }
+        const lat = Number(latitude), lon = Number(longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+            showToast("The customer coordinates are invalid."); return;
         }
-
+        window.location.href = "https://waze.com/ul?ll=" + encodeURIComponent(lat + "," + lon) + "&navigate=yes";
     }
 
+    async function copyLocation(location) {
+        if (!location) return;
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(location);
+                showToast("Customer location copied.");
+            } else {
+                window.prompt("Copy customer coordinates:", location);
+            }
+        } catch { window.prompt("Copy customer coordinates:", location); }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        if (showToast.timer) clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    function appendLine(parent, label, value, icon) {
+        if (value === null || value === undefined || value === "") return;
+        const line = document.createElement("div");
+        line.className = "modal-line";
+        const labelNode = document.createElement("strong");
+        labelNode.textContent = icon + " " + label + ": ";
+        const valueNode = document.createElement("span");
+        valueNode.textContent = value;
+        line.append(labelNode, valueNode);
+        parent.appendChild(line);
+    }
+
+    function showDetails(button) {
+        const body = document.getElementById("modalBody");
+        body.replaceChildren();
+        appendLine(body, "Order", "#" + button.dataset.orderId, "📦");
+        appendLine(body, "Customer", button.dataset.customer, "👤");
+        appendLine(body, "Phone", button.dataset.phone, "📞");
+        appendLine(body, "Address", button.dataset.address, "📍");
+        appendLine(body, "Notes", button.dataset.notes, "📝");
+
+        const lat = button.dataset.lat, lon = button.dataset.lon;
+        if (lat && lon) {
+            const box = document.createElement("div");
+            box.className = "modal-location";
+            const title = document.createElement("div");
+            title.className = "modal-location-title";
+            title.textContent = "📍 Customer location";
+            const coords = document.createElement("div");
+            coords.className = "modal-location-value";
+            coords.textContent = lat + ", " + lon;
+            const waze = document.createElement("button");
+            waze.type = "button";
+            waze.className = "modal-waze";
+            waze.textContent = "🧭 Navigate with Waze";
+            waze.addEventListener("click", () => openWaze(lat, lon));
+            box.append(title, coords, waze);
+            body.appendChild(box);
+        } else {
+            appendLine(body, "Location", "Not provided", "📍");
+        }
+        document.getElementById("detailsModal").style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeDetails() {
+        document.getElementById("detailsModal").style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+
+    function openTransfer(orderId) {
+        const orderInput = document.getElementById("transferOrderID");
+        const modal = document.getElementById("transferModal");
+        if (!modal) return;
+        if (orderInput) orderInput.value = orderId;
+        const select = document.getElementById("newWorkerID");
+        if (select) select.value = "";
+        const notes = document.getElementById("transferNotes");
+        if (notes) notes.value = "";
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeTransfer() {
+        const modal = document.getElementById("transferModal");
+        if (modal) modal.style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+    document.getElementById("detailsModal").addEventListener("click", function(event) {
+        if (event.target === this) closeDetails();
+    });
+    const transferModal = document.getElementById("transferModal");
+    if (transferModal) {
+        transferModal.addEventListener("click", function(event) {
+            if (event.target === this) closeTransfer();
+        });
+    }
+
+    document.addEventListener("click", function(event) {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+        if (target.dataset.action === "waze") openWaze(target.dataset.lat, target.dataset.lon);
+        else if (target.dataset.action === "copy-location") copyLocation(target.dataset.location);
+        else if (target.dataset.action === "details") showDetails(target);
+        else if (target.dataset.action === "transfer") {
+            openTransfer(target.dataset.orderId);
+        }
+    });
+
+    document.querySelectorAll(".filter-button").forEach(button => {
+        button.addEventListener("click", function() {
+            const filter = this.dataset.filter;
+            let visibleCount = 0;
+            document.querySelectorAll(".filter-button").forEach(item => item.classList.toggle("active", item === this));
+            document.querySelectorAll(".order-card").forEach(card => {
+                const visible = filter === "All" || card.dataset.orderStatus === filter;
+                card.style.display = visible ? "" : "none";
+                if (visible) visibleCount++;
+            });
+            const empty = document.getElementById("filteredEmpty");
+            if (empty) empty.style.display = visibleCount === 0 ? "block" : "none";
+        });
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") { closeDetails(); closeTransfer(); }
+    });
+
+    // Refresh the dashboard automatically so newly assigned delivery orders
+    // appear without requiring the worker to press Refresh every time.
+    window.setInterval(() => {
+        const modalOpen = document.getElementById("transferModal")?.style.display === "flex" ||
+            document.getElementById("detailsModal")?.style.display === "flex";
+        if (!modalOpen && !document.hidden) window.location.reload();
+    }, 30000);
+
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function() {
+            navigator.serviceWorker.register("/service-worker.js", { scope: "/" })
+                .catch(error => console.error("Service worker registration failed:", error));
+        });
+    }
 </script>
-
 </body>
-
 </html>

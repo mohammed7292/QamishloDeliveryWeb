@@ -84,10 +84,13 @@ namespace QamishloDeliveryWeb.Pages
 
                 HttpContext.Session.SetString(
                     "DeliveryWorkerUsername",
-                    result.Username ?? "");
+                    result.Username ?? Username.Trim());
                 HttpContext.Session.SetString(
-                     "DeliveryWorkerPhone",
-                      result.Phone ?? "");
+                    "DeliveryWorkerPassword",
+                    Password);
+                HttpContext.Session.SetString(
+                    "DeliveryWorkerPhone",
+                    result.Phone ?? "");
 
                 return RedirectToPage("/Index");
             }

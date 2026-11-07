@@ -20,11 +20,10 @@ builder.Services.AddSession(options =>
         TimeSpan.FromHours(12);
 
     options.Cookie.HttpOnly = true;
-
     options.Cookie.IsEssential = true;
-
-    options.Cookie.Name =
-        "QamishloDelivery.Session";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.Name = "QamishloDelivery.Session";
 });
 
 
@@ -36,10 +35,11 @@ builder.Services.AddHttpClient(
     "QamishloAPI",
     client =>
     {
-        client.BaseAddress =
-            new Uri(
-                "https://qamishlorestaurantapi.miohammedomran.blitz.cloud/"
-            );
+        string apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"]
+            ?? "https://qamishlorestaurantapi.miohammedomran.prod.page/";
+
+        client.BaseAddress = new Uri(
+            apiBaseUrl.EndsWith('/') ? apiBaseUrl : apiBaseUrl + "/");
 
         client.Timeout =
             TimeSpan.FromSeconds(15);
