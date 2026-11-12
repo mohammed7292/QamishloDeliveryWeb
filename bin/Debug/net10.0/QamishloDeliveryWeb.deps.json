@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "QamishloDeliveryWeb/1.0.0": {
+        "runtime": {
+          "QamishloDeliveryWeb.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "QamishloDeliveryWeb/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
