@@ -33,6 +33,9 @@ namespace QamishloDeliveryWeb.Pages
         public List<DeliveryOrder> Orders { get; set; } =
             new List<DeliveryOrder>();
 
+        public List<DeliveryOrder> TodayOrders { get; set; } =
+            new List<DeliveryOrder>();
+
         public string OrdersLoadError { get; set; } = "";
 
         public List<TransferWorkerOption> TransferWorkers { get; set; } =
@@ -90,6 +93,7 @@ namespace QamishloDeliveryWeb.Pages
             }
 
             await LoadOrdersAsync();
+            await LoadTodayOrdersAsync();
             await LoadTodayStatisticsAsync();
             await LoadTransferTargetsAsync();
 
@@ -233,6 +237,33 @@ namespace QamishloDeliveryWeb.Pages
 
 
         // =====================================================
+        // LOAD ALL ORDERS ASSIGNED TO THIS DRIVER TODAY
+        // =====================================================
+
+        private async Task LoadTodayOrdersAsync()
+        {
+            try
+            {
+                using HttpClient client = CreateWorkerApiClient();
+                using HttpResponseMessage response = await client.GetAsync(
+                    $"api/deliveryworkers/{WorkerID}/today-orders");
+                if (!response.IsSuccessStatusCode)
+                {
+                    TodayOrders = new List<DeliveryOrder>();
+                    return;
+                }
+                WorkerOrdersResponse? result = await response.Content.ReadFromJsonAsync<WorkerOrdersResponse>();
+                TodayOrders = result?.Success == true && result.Orders != null
+                    ? result.Orders
+                    : new List<DeliveryOrder>();
+            }
+            catch
+            {
+                TodayOrders = new List<DeliveryOrder>();
+            }
+        }
+
+        // =====================================================
         // LOAD TODAY STATISTICS
         // =====================================================
 
@@ -285,6 +316,63 @@ namespace QamishloDeliveryWeb.Pages
 
 
         // =====================================================
+        // END SHIFT
+        // =====================================================
+
+        public async Task<IActionResult> OnPostEndShiftAsync()
+        {
+            LoadWorkerSession();
+            if (WorkerID <= 0) return RedirectToPage("/Login");
+            try
+            {
+                using HttpClient client = CreateWorkerApiClient();
+                using HttpResponseMessage response = await client.PostAsync(
+                    $"api/deliveryworkers/{WorkerID}/end-shift", null);
+                string content = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    TempData["StatusError"] = $"Could not end shift ({(int)response.StatusCode}): {content}";
+                    return RedirectToPage();
+                }
+                HttpContext.Session.Clear();
+                TempData["LoginSuccess"] = "تم تسجيل نهاية الدوام بنجاح.";
+                return RedirectToPage("/Login");
+            }
+            catch (Exception ex)
+            {
+                TempData["StatusError"] = "تعذر إنهاء الدوام: " + ex.Message;
+                return RedirectToPage();
+            }
+        }
+
+        // Browser geolocation is forwarded through this same-origin Razor handler.
+        public async Task<IActionResult> OnPostLocationAsync(double latitude, double longitude)
+        {
+            LoadWorkerSession();
+            if (WorkerID <= 0) return Unauthorized();
+            if (latitude is < -90 or > 90 || longitude is < -180 or > 180)
+                return BadRequest(new { success = false, message = "Invalid coordinates." });
+            try
+            {
+                using HttpClient client = CreateWorkerApiClient();
+                using HttpResponseMessage response = await client.PostAsJsonAsync(
+                    $"api/deliveryworkers/{WorkerID}/location",
+                    new { Latitude = latitude, Longitude = longitude });
+                string body = await response.Content.ReadAsStringAsync();
+                return new ContentResult
+                {
+                    StatusCode = (int)response.StatusCode,
+                    ContentType = "application/json",
+                    Content = string.IsNullOrWhiteSpace(body) ? "{}" : body
+                };
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(503, new { success = false, message = ex.Message });
+            }
+        }
+
+        // =====================================================
         // UPDATE ORDER STATUS
         // =====================================================
 
@@ -312,8 +400,7 @@ namespace QamishloDeliveryWeb.Pages
 
             string[] allowedStatuses =
             {
-                "Preparing",
-                "Ready",
+                "OutForDelivery",
                 "Delivered"
             };
 

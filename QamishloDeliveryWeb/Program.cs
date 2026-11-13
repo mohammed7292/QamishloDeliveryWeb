@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.HttpOverrides;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -6,6 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 // ============================================================
 
 builder.Services.AddRazorPages();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 
 // ============================================================
@@ -52,6 +61,8 @@ builder.Services.AddHttpClient(
 // ============================================================
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 
 // ============================================================
@@ -108,6 +119,12 @@ app.UseAuthorization();
 // ============================================================
 
 app.MapRazorPages();
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "healthy",
+    service = "QamishloDeliveryWeb",
+    utc = DateTime.UtcNow
+}));
 
 
 // ============================================================

@@ -124,6 +124,10 @@
         .empty-text { max-width:340px; margin:9px auto 0; color:var(--muted); font-size:13px; line-height:1.7; }
         .empty-filter { display:none; }
         .logout { display:flex; justify-content:center; align-items:center; width:100%; min-height:50px; margin-top:25px; padding:13px; border:1px solid rgba(240,108,93,.35); border-radius:16px; background:rgba(108,35,29,.18); color:#FFB6AD; text-decoration:none; font-weight:850; }
+        .button-danger { min-height:42px; padding:10px 14px; border:1px solid rgba(240,108,93,.45); border-radius:13px; background:rgba(108,35,29,.35); color:#FFB6AD; font-size:12px; font-weight:900; cursor:pointer; }
+        .history-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px; margin-bottom:9px; border:1px solid var(--line); border-radius:16px; background:var(--surface); }
+        .history-row strong { color:#fff; }
+        .history-meta { color:var(--muted); font-size:12px; margin-top:5px; }
         .modal { display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; padding:15px; background:rgba(5,4,4,.78); overflow-y:auto; backdrop-filter:blur(10px); }
         .modal-content { width:100%; max-width:500px; max-height:90dvh; overflow-y:auto; padding:22px; border:1px solid var(--line); border-radius:24px; background:var(--surface-strong); box-shadow:0 24px 70px rgba(0,0,0,.55); backdrop-filter:blur(20px); }
         .modal-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:17px; }
@@ -147,6 +151,12 @@
         @@media(max-width:380px) { .container { padding:12px 10px 30px; } .header { padding:20px 18px; border-radius:23px; } .welcome { font-size:23px; } .stat-card { padding:13px 11px; } .stat-number { font-size:26px; } .order-card { padding:15px; } .buttons { gap:7px; } .button { font-size:11px; } .location-buttons { grid-template-columns:1fr; } }
         @@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } }
     </style>
+
+    <style>
+        .language-toggle { position:fixed; z-index:2000; top:calc(12px + env(safe-area-inset-top)); right:14px; min-width:86px; min-height:40px; padding:8px 13px; border:1px solid rgba(255,255,255,.2); border-radius:24px; background:rgba(37,32,29,.94); color:#FFB879; font:800 12px Inter,Segoe UI,Arial,sans-serif; box-shadow:0 8px 24px rgba(0,0,0,.3); backdrop-filter:blur(14px); cursor:pointer; }
+        html[dir="rtl"] .language-toggle { right:auto; left:14px; }
+        html[dir="rtl"] body { font-family:Tahoma,Segoe UI,Arial,sans-serif; }
+    </style>
 </head>
 <body>
 <main class="container">
@@ -161,8 +171,11 @@
         <div class="welcome">Welcome back 👋</div>
         <div class="worker-name">@Model.WorkerName</div>
         <div class="header-bottom">
-            <div class="shift-label">🛵 Delivery dashboard</div>
-            <div class="shift-label">● Active session</div>
+            <div class="shift-label">🛵 Delivery dashboard · On shift</div>
+            <form method="post" asp-page-handler="EndShift" onsubmit="return confirm('End your delivery shift now?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="button-danger">End Shift / نهاية وقت العمل</button>
+            </form>
         </div>
     </header>
 
@@ -301,20 +314,15 @@
                     }
                     @if (order.Status == "Preparing")
                     {
-                        <form method="post" asp-page-handler="Status">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="orderID" value="@order.OrderID" />
-                            <input type="hidden" name="status" value="Ready" />
-                            <button type="submit" class="button ready">📦 Picked up</button>
-                        </form>
+                        <div class="message info">The restaurant is preparing this order. The pickup button becomes available when the restaurant marks it Ready.</div>
                     }
                     @if (order.Status == "Ready")
                     {
                         <form method="post" asp-page-handler="Status">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="orderID" value="@order.OrderID" />
-                            <input type="hidden" name="status" value="Delivered" />
-                            <button type="submit" class="button delivered">✓ Delivered</button>
+                            <input type="hidden" name="status" value="OutForDelivery" />
+                            <button type="submit" class="button ready">📦 Pick up &amp; start delivery</button>
                         </form>
                     }
                     @if (order.Status == "OutForDelivery")
@@ -350,6 +358,46 @@
             <div class="empty-text">Choose another status to see your orders.</div>
         </div>
     }
+
+    <div class="section-title">All Orders Taken Today</div>
+    <div class="section-subtitle">Complete list of every order assigned to your account during today's business day, including completed orders assigned to you today.</div>
+    @if (Model.TodayOrders.Count == 0)
+    {
+        <div class="empty"><div class="empty-icon">🗓️</div><div class="empty-title">No orders recorded today</div><div class="empty-text">Orders assigned to your account today will appear here.</div></div>
+    }
+    else
+    {
+        foreach (var order in Model.TodayOrders)
+        {
+            <article class="history-row">
+                <div><strong>#@order.OrderID · @order.CustomerName</strong><div class="history-meta">@order.OrderDate.ToString("HH:mm") · @order.OrderType · @order.Status</div></div>
+                <strong>@order.TotalAmount.ToString("N0") IQD</strong>
+            </article>
+        }
+    }
+
+    <form id="locationTokenForm" method="post" asp-page-handler="Location" style="display:none">
+        @Html.AntiForgeryToken()
+    </form>
+    <script>
+    (() => {
+      const token = document.querySelector('#locationTokenForm input[name="__RequestVerificationToken"]')?.value;
+      if (!token || !navigator.geolocation) return;
+      let lastSent = 0;
+      navigator.geolocation.watchPosition(async position => {
+        const now = Date.now();
+        if (now - lastSent < 10000) return;
+        lastSent = now;
+        const body = new URLSearchParams();
+        body.set('latitude', String(position.coords.latitude));
+        body.set('longitude', String(position.coords.longitude));
+        body.set('__RequestVerificationToken', token);
+        try {
+          await fetch('?handler=Location', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','RequestVerificationToken':token}, body:body.toString(), credentials:'same-origin' });
+        } catch { }
+      }, () => {}, { enableHighAccuracy:true, maximumAge:5000, timeout:15000 });
+    })();
+    </script>
 
     <a href="/Logout" class="logout">🚪 Logout</a>
 </main>
@@ -551,5 +599,6 @@
         });
     }
 </script>
+    <script src="/js/language.js?v=1"></script>
 </body>
 </html>

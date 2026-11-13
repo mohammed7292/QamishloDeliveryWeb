@@ -1,0 +1,555 @@
+
+@page
+@model QamishloDeliveryWeb.Pages.IndexModel
+@{
+    ViewData["Title"] = "Qamishlo Delivery";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#14110F" />
+    <meta name="description" content="Qamishlo Delivery Worker Dashboard" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Qamishlo Delivery</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #14110F;
+            --surface: rgba(37, 32, 29, .78);
+            --surface-strong: rgba(31, 27, 25, .94);
+            --line: rgba(255, 255, 255, .12);
+            --line-active: rgba(243, 122, 31, .65);
+            --orange: #F37A1F;
+            --orange-bright: #FF922E;
+            --glow: #4A2810;
+            --text: #FFFFFF;
+            --muted: #9E9690;
+            --green: #39B978;
+            --blue: #62A9F5;
+            --red: #F06C5D;
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; background: var(--bg); }
+        body {
+            margin: 0; min-height: 100vh; min-height: 100dvh;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(ellipse at 15% 0%, rgba(74,40,16,.55), transparent 42%),
+                radial-gradient(ellipse at 100% 18%, rgba(243,122,31,.13), transparent 34%),
+                radial-gradient(ellipse at 50% 100%, rgba(74,40,16,.22), transparent 48%),
+                var(--bg);
+            background-attachment: fixed;
+        }
+        button, input, select, textarea { font: inherit; }
+        button, a { -webkit-tap-highlight-color: transparent; }
+        a { color: inherit; }
+        .container { width: 100%; max-width: 780px; margin: auto; padding: 18px 15px calc(35px + env(safe-area-inset-bottom)); }
+        .header {
+            position: relative; overflow: hidden; isolation: isolate;
+            padding: 25px 23px; margin-bottom: 22px;
+            border: 1px solid var(--line); border-radius: 28px;
+            background: linear-gradient(135deg, rgba(53,43,36,.92), rgba(28,25,23,.82));
+            box-shadow: 0 18px 50px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.06);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        }
+        .header:before { content:""; position:absolute; z-index:-1; width:230px; height:230px; right:-65px; top:-95px; border-radius:50%; background:rgba(243,122,31,.18); filter:blur(45px); }
+        .header:after { content:"🛵"; position:absolute; z-index:-1; right:13px; bottom:8px; font-size:82px; opacity:.15; transform:rotate(-10deg); pointer-events:none; }
+        .brand-row { display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
+        .brand-icon { display:grid; place-items:center; width:50px; height:50px; flex-shrink:0; border-radius:17px; background:linear-gradient(145deg,var(--orange-bright),var(--orange)); color:#20140C; font-size:18px; font-weight:1000; box-shadow:0 7px 24px rgba(243,122,31,.28); }
+        .brand-name { font-size:18px; line-height:1.3; font-weight:950; letter-spacing:.5px; }
+        .brand-subtitle { margin-top:4px; color:var(--muted); font-size:12px; }
+        .welcome { position:relative; z-index:1; margin-top:26px; font-size:27px; line-height:1.25; font-weight:900; letter-spacing:-.6px; }
+        .worker-name { position:relative; z-index:1; margin-top:8px; color:#E8DED7; font-size:15px; font-weight:700; overflow-wrap:anywhere; }
+        .header-bottom { display:flex; align-items:center; justify-content:space-between; gap:9px; margin-top:19px; position:relative; z-index:1; flex-wrap:wrap; }
+        .shift-label { display:inline-flex; align-items:center; gap:7px; padding:9px 12px; border:1px solid var(--line); border-radius:30px; background:rgba(255,255,255,.07); color:#EDE5DF; font-size:12px; font-weight:750; }
+        .section-title { margin:25px 3px 9px; font-size:22px; font-weight:900; letter-spacing:-.35px; }
+        .section-subtitle { margin:0 3px 15px; color:var(--muted); font-size:13px; line-height:1.55; }
+        .stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; margin-bottom:16px; }
+        .stat-card { min-width:0; padding:17px 16px; border:1px solid var(--line); border-radius:22px; background:var(--surface); box-shadow:0 12px 30px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.04); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+        .stat-icon { display:grid; place-items:center; width:42px; height:42px; border:1px solid rgba(243,122,31,.22); border-radius:15px; background:rgba(243,122,31,.11); font-size:21px; }
+        .stat-title { margin-top:13px; color:var(--muted); font-size:12px; line-height:1.45; }
+        .stat-number { margin-top:5px; color:var(--orange-bright); font-size:30px; font-weight:950; overflow-wrap:anywhere; }
+        .stat-money { font-size:clamp(17px,4.5vw,23px); }
+        .refresh-button { display:flex; align-items:center; justify-content:center; gap:9px; width:100%; min-height:50px; padding:13px; border:1px solid var(--line); border-radius:16px; background:var(--surface); color:#F8F1EC; font-weight:850; text-decoration:none; cursor:pointer; box-shadow:inset 0 1px rgba(255,255,255,.04); backdrop-filter:blur(16px); }
+        .refresh-button:hover { border-color:var(--line-active); background:rgba(243,122,31,.09); }
+        .message { padding:14px 15px; margin-bottom:13px; border-radius:15px; line-height:1.55; font-size:13px; font-weight:750; overflow-wrap:anywhere; backdrop-filter:blur(16px); }
+        .success { border:1px solid rgba(57,185,120,.35); background:rgba(24,91,58,.22); color:#A7F0C7; }
+        .error { border:1px solid rgba(240,108,93,.42); background:rgba(108,35,29,.22); color:#FFB6AD; }
+        .order-filters { display:flex; gap:8px; overflow-x:auto; padding:2px 0 10px; margin-bottom:7px; scrollbar-width:none; }
+        .order-filters::-webkit-scrollbar { display:none; }
+        .filter-button { flex:0 0 auto; padding:10px 15px; border:1px solid var(--line); border-radius:30px; background:rgba(37,32,29,.75); color:var(--muted); font-size:12px; font-weight:800; cursor:pointer; }
+        .filter-button.active { border-color:var(--orange); background:rgba(243,122,31,.17); color:#FFC18E; box-shadow:0 0 18px rgba(243,122,31,.12); }
+        .order-card { min-width:0; padding:19px; margin-bottom:15px; border:1px solid var(--line); border-radius:25px; background:var(--surface); box-shadow:0 14px 34px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.045); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+        .order-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,.09); }
+        .order-label { color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.9px; }
+        .order-number { margin-top:5px; color:#fff; font-size:24px; font-weight:950; overflow-wrap:anywhere; }
+        .status { display:inline-block; flex:0 0 auto; max-width:52%; padding:8px 12px; border:1px solid rgba(243,122,31,.38); border-radius:30px; background:rgba(243,122,31,.14); color:#FFBF87; font-size:11px; font-weight:850; text-align:center; overflow-wrap:anywhere; }
+        .status[data-status="Delivered"] { color:#9FE8BD; background:rgba(38,139,83,.16); border-color:rgba(57,185,120,.35); }
+        .status[data-status="Ready"], .status[data-status="OutForDelivery"] { color:#A8D4FF; background:rgba(48,119,184,.16); border-color:rgba(98,169,245,.33); }
+        .order-info { display:grid; gap:12px; padding:16px 0 3px; }
+        .info { display:flex; align-items:flex-start; gap:10px; color:#D5CCC5; font-size:13px; line-height:1.65; overflow-wrap:anywhere; min-width:0; }
+        .info-icon { flex:0 0 22px; text-align:center; }
+        .info-content { min-width:0; }
+        .info strong { color:#fff; }
+        .location-box { padding:15px; margin-top:15px; border:1px solid rgba(243,122,31,.28); border-radius:18px; background:rgba(243,122,31,.07); }
+        .location-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+        .location-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:13px; background:rgba(243,122,31,.15); font-size:19px; }
+        .location-title { color:#FFB879; font-size:14px; font-weight:900; }
+        .location-subtitle { margin-top:4px; color:var(--muted); font-size:11px; }
+        .location-coordinates { padding:12px; margin-bottom:10px; border:1px solid var(--line); border-radius:12px; background:rgba(0,0,0,.2); color:#F4EAE2; text-align:center; font-size:13px; font-weight:750; overflow-wrap:anywhere; }
+        .location-buttons { display:grid; grid-template-columns:1.2fr 1fr; gap:9px; }
+        .waze-button,.copy-location-button { min-height:46px; padding:11px 8px; border:1px solid var(--line); border-radius:12px; color:#fff; font-size:12px; font-weight:850; cursor:pointer; }
+        .waze-button { background:linear-gradient(120deg,#A75417,#F37A1F); border-color:rgba(255,160,91,.34); }
+        .copy-location-button { background:rgba(255,255,255,.08); }
+        .location-missing { padding:12px; margin-top:14px; border:1px solid var(--line); border-radius:13px; background:rgba(0,0,0,.14); color:var(--muted); font-size:12px; text-align:center; }
+        .total { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:17px; padding-top:16px; border-top:1px solid rgba(255,255,255,.09); }
+        .total-label { color:var(--muted); font-size:13px; }
+        .total-value { color:var(--orange-bright); font-size:22px; font-weight:950; text-align:right; overflow-wrap:anywhere; }
+        .buttons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:15px; }
+        .button { display:flex; align-items:center; justify-content:center; width:100%; min-width:0; min-height:47px; padding:11px 9px; border:1px solid transparent; border-radius:14px; color:white; text-align:center; text-decoration:none; font-size:12px; font-weight:850; line-height:1.4; cursor:pointer; overflow-wrap:anywhere; transition:transform .16s ease,filter .16s ease,border-color .16s ease; }
+        .button:hover { filter:brightness(1.08); transform:translateY(-1px); }
+        .buttons form { min-width:0; }
+        .whatsapp { background:rgba(37,131,75,.82); border-color:rgba(82,205,133,.25); }
+        .accept,.ready { background:linear-gradient(110deg,#F37A1F,#FF9B38); color:#20140C; box-shadow:0 7px 18px rgba(243,122,31,.16); }
+        .delivered { background:rgba(33,130,75,.85); border-color:rgba(57,185,120,.35); }
+        .details { background:rgba(255,255,255,.075); color:#F5EDE7; border-color:var(--line); }
+        .transfer { background:rgba(243,122,31,.12); color:#FFBC83; border-color:rgba(243,122,31,.35); grid-column:1/-1; }
+        .empty { padding:34px 22px; border:1px solid var(--line); border-radius:23px; background:var(--surface); text-align:center; backdrop-filter:blur(16px); }
+        .empty-icon { font-size:42px; margin-bottom:13px; }
+        .empty-title { color:#fff; font-size:18px; font-weight:900; }
+        .empty-text { max-width:340px; margin:9px auto 0; color:var(--muted); font-size:13px; line-height:1.7; }
+        .empty-filter { display:none; }
+        .logout { display:flex; justify-content:center; align-items:center; width:100%; min-height:50px; margin-top:25px; padding:13px; border:1px solid rgba(240,108,93,.35); border-radius:16px; background:rgba(108,35,29,.18); color:#FFB6AD; text-decoration:none; font-weight:850; }
+        .modal { display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; padding:15px; background:rgba(5,4,4,.78); overflow-y:auto; backdrop-filter:blur(10px); }
+        .modal-content { width:100%; max-width:500px; max-height:90dvh; overflow-y:auto; padding:22px; border:1px solid var(--line); border-radius:24px; background:var(--surface-strong); box-shadow:0 24px 70px rgba(0,0,0,.55); backdrop-filter:blur(20px); }
+        .modal-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:17px; }
+        .modal-title { color:#FFB879; font-size:21px; font-weight:950; }
+        .modal-line { margin:12px 0; color:#E4DAD2; font-size:13px; line-height:1.7; overflow-wrap:anywhere; white-space:pre-wrap; }
+        .modal-line strong { color:#fff; }
+        .modal-location { margin-top:15px; padding:13px; border:1px solid rgba(243,122,31,.3); border-radius:15px; background:rgba(243,122,31,.07); }
+        .modal-location-title { margin-bottom:10px; color:#FFB879; font-weight:900; }
+        .modal-location-value { padding:10px; margin-bottom:10px; border-radius:10px; background:rgba(0,0,0,.2); border:1px solid var(--line); text-align:center; font-weight:750; overflow-wrap:anywhere; }
+        .modal-waze { display:block; width:100%; padding:13px; border:0; border-radius:12px; background:linear-gradient(110deg,#F37A1F,#FF9B38); color:#20140C; text-align:center; font-weight:900; cursor:pointer; }
+        .close-button { width:100%; min-height:47px; margin-top:17px; padding:12px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.08); color:#fff; font-weight:900; cursor:pointer; }
+        .transfer-form { display:grid; gap:15px; }
+        .transfer-form label { display:block; margin-bottom:8px; color:#F3E9E1; font-size:13px; font-weight:800; }
+        .transfer-form select,.transfer-form textarea { width:100%; min-height:48px; padding:12px 13px; border:1px solid var(--line); border-radius:13px; background:#1B1715; color:#fff; outline:none; }
+        .transfer-form textarea { min-height:90px; resize:vertical; }
+        .transfer-form select:focus,.transfer-form textarea:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(243,122,31,.14); }
+        .transfer-submit { width:100%; min-height:49px; border:0; border-radius:14px; background:linear-gradient(110deg,#F37A1F,#FF9B38); color:#20140C; font-weight:950; cursor:pointer; }
+        .toast { position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:10000; width:max-content; max-width:calc(100% - 30px); padding:13px 17px; border:1px solid var(--line); border-radius:14px; background:#2A211C; color:#fff; font-size:13px; text-align:center; box-shadow:0 10px 30px #0007; transform:translate(-50%,20px); opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; }
+        .toast.show { transform:translate(-50%,0); opacity:1; }
+        @@media(min-width:600px) { .container { padding-top:27px; } .stats { grid-template-columns:repeat(4,minmax(0,1fr)); } .stat-card { padding:16px 13px; } .stat-number { font-size:27px; } .stat-money { font-size:17px; } }
+        @@media(max-width:380px) { .container { padding:12px 10px 30px; } .header { padding:20px 18px; border-radius:23px; } .welcome { font-size:23px; } .stat-card { padding:13px 11px; } .stat-number { font-size:26px; } .order-card { padding:15px; } .buttons { gap:7px; } .button { font-size:11px; } .location-buttons { grid-template-columns:1fr; } }
+        @@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } }
+    </style>
+</head>
+<body>
+<main class="container">
+    <header class="header">
+        <div class="brand-row">
+            <div class="brand-icon">QF</div>
+            <div>
+                <div class="brand-name">QAMISHLO DELIVERY</div>
+                <div class="brand-subtitle">Fast • Reliable • Professional</div>
+            </div>
+        </div>
+        <div class="welcome">Welcome back 👋</div>
+        <div class="worker-name">@Model.WorkerName</div>
+        <div class="header-bottom">
+            <div class="shift-label">🛵 Delivery dashboard</div>
+            <div class="shift-label">● Active session</div>
+        </div>
+    </header>
+
+    @if (TempData["StatusSuccess"] != null)
+    {
+        <div class="message success" role="status">✅ @TempData["StatusSuccess"]</div>
+    }
+    @if (TempData["StatusError"] != null)
+    {
+        <div class="message error" role="alert">❌ @TempData["StatusError"]</div>
+    }
+
+    <div class="section-title">Today's Overview</div>
+    <div class="section-subtitle">A quick look at your delivery activity.</div>
+
+    <section class="stats">
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-title">Assigned Orders</div><div class="stat-number">@Model.AssignedOrdersCount</div></div>
+        <div class="stat-card"><div class="stat-icon">🛵</div><div class="stat-title">Active Deliveries</div><div class="stat-number">@Model.ActiveDeliveriesCount</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-title">Delivered Today</div><div class="stat-number">@Model.DeliveredOrdersToday</div></div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-title">Today's Total</div><div class="stat-number stat-money">@Model.TotalAmountToday.ToString("N0") IQD</div></div>
+    </section>
+
+    <div style="display:grid;gap:10px;margin-bottom:20px">
+        <form method="get">
+            <button type="submit" class="refresh-button">↻ Refresh dashboard and orders</button>
+        </form>
+        <a href="/Reports" class="refresh-button">📊 Daily Reports &amp; Delivered Orders</a>
+    </div>
+
+    <div class="section-title">My Orders</div>
+    <div class="section-subtitle">View order details, update status, or prepare to transfer an order.</div>
+
+    <nav class="order-filters" aria-label="Filter orders">
+        <button type="button" class="filter-button active" data-filter="All">All orders</button>
+        <button type="button" class="filter-button" data-filter="New">New</button>
+        <button type="button" class="filter-button" data-filter="Preparing">Preparing</button>
+        <button type="button" class="filter-button" data-filter="Ready">Ready</button>
+        <button type="button" class="filter-button" data-filter="OutForDelivery">On the way</button>
+    </nav>
+
+    @if (Model.Orders.Count == 0)
+    {
+        <div class="empty">
+            <div class="empty-icon">@(string.IsNullOrWhiteSpace(Model.OrdersLoadError) ? "📦" : "⚠️")</div>
+            <div class="empty-title">@(string.IsNullOrWhiteSpace(Model.OrdersLoadError) ? "No active orders assigned" : "Orders could not be loaded")</div>
+            <div class="empty-text">@(string.IsNullOrWhiteSpace(Model.OrdersLoadError) ? "When the restaurant assigns an active order to you, it will appear here. Use Refresh to check again." : Model.OrdersLoadError)</div>
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model.Orders)
+        {
+            string latitude = "";
+            string longitude = "";
+            string location = "";
+
+            if (!string.IsNullOrWhiteSpace(order.Notes))
+            {
+                var locationMatch = System.Text.RegularExpressions.Regex.Match(
+                    order.Notes,
+                    @"Location:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                if (locationMatch.Success)
+                {
+                    latitude = locationMatch.Groups[1].Value;
+                    longitude = locationMatch.Groups[2].Value;
+                    location = $"{latitude},{longitude}";
+                }
+            }
+
+            var safeStatus = order.Status ?? "";
+
+            <article class="order-card" data-order-status="@safeStatus">
+                <div class="order-top">
+                    <div><div class="order-label">Order number</div><div class="order-number">#@order.OrderID</div></div>
+                    <span class="status" data-status="@safeStatus">@safeStatus</span>
+                </div>
+
+                <div class="order-info">
+                    <div class="info"><span class="info-icon">👤</span><div class="info-content"><strong>Customer:</strong> @order.CustomerName</div></div>
+                    @if (!string.IsNullOrWhiteSpace(order.CustomerPhone))
+                    {
+                        <div class="info"><span class="info-icon">📞</span><div class="info-content"><strong>Phone:</strong> @order.CustomerPhone</div></div>
+                    }
+                    <div class="info"><span class="info-icon">🛵</span><div class="info-content"><strong>Type:</strong> @order.OrderType</div></div>
+                    @if (!string.IsNullOrWhiteSpace(order.ZoneName))
+                    {
+                        <div class="info"><span class="info-icon">📍</span><div class="info-content"><strong>Zone:</strong> @order.ZoneName</div></div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(order.DeliveryAddress))
+                    {
+                        <div class="info"><span class="info-icon">🏠</span><div class="info-content"><strong>Address:</strong> @order.DeliveryAddress</div></div>
+                    }
+                    <div class="info"><span class="info-icon">🕒</span><div class="info-content"><strong>Order time:</strong> @order.OrderDate.ToString("yyyy-MM-dd HH:mm")</div></div>
+                    @if (!string.IsNullOrWhiteSpace(order.Notes))
+                    {
+                        <div class="info"><span class="info-icon">📝</span><div class="info-content"><strong>Notes:</strong> @order.Notes</div></div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(location))
+                {
+                    <section class="location-box">
+                        <div class="location-header">
+                            <div class="location-icon">📍</div>
+                            <div><div class="location-title">Customer Location</div><div class="location-subtitle">GPS coordinates</div></div>
+                        </div>
+                        <div class="location-coordinates">@latitude, @longitude</div>
+                        <div class="location-buttons">
+                            <button type="button" class="waze-button" data-action="waze" data-lat="@latitude" data-lon="@longitude">🧭 Navigate with Waze</button>
+                            <button type="button" class="copy-location-button" data-action="copy-location" data-location="@location">📋 Copy location</button>
+                        </div>
+                    </section>
+                }
+                else
+                {
+                    <div class="location-missing">📍 Customer location not provided</div>
+                }
+
+                <div class="total"><div class="total-label">Order total</div><div class="total-value">@order.TotalAmount.ToString("N0") IQD</div></div>
+
+                <div class="buttons">
+                    @if (!string.IsNullOrWhiteSpace(order.CustomerPhone))
+                    {
+                        <a href="@Model.GetWhatsAppUrl(order.CustomerPhone)" target="_blank" rel="noopener noreferrer" class="button whatsapp">💬 WhatsApp customer</a>
+                    }
+                    @if (order.Status == "New")
+                    {
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Preparing" />
+                            <button type="submit" class="button accept">✓ Accept order</button>
+                        </form>
+                    }
+                    @if (order.Status == "Preparing")
+                    {
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Ready" />
+                            <button type="submit" class="button ready">📦 Picked up</button>
+                        </form>
+                    }
+                    @if (order.Status == "Ready")
+                    {
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Delivered" />
+                            <button type="submit" class="button delivered">✓ Delivered</button>
+                        </form>
+                    }
+                    @if (order.Status == "OutForDelivery")
+                    {
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Delivered" />
+                            <button type="submit" class="button delivered">✓ Confirm delivery</button>
+                        </form>
+                    }
+
+                    <button type="button" class="button details"
+                            data-action="details"
+                            data-order-id="@order.OrderID"
+                            data-customer="@order.CustomerName"
+                            data-phone="@order.CustomerPhone"
+                            data-address="@order.DeliveryAddress"
+                            data-notes="@order.Notes"
+                            data-lat="@latitude"
+                            data-lon="@longitude">👁 View details</button>
+
+                    <button type="button" class="button transfer"
+                            data-action="transfer"
+                            data-order-id="@order.OrderID">🔄 Transfer Order to Another Worker</button>
+                </div>
+            </article>
+        }
+
+        <div id="filteredEmpty" class="empty empty-filter">
+            <div class="empty-icon">🔎</div>
+            <div class="empty-title">No orders in this category</div>
+            <div class="empty-text">Choose another status to see your orders.</div>
+        </div>
+    }
+
+    <a href="/Logout" class="logout">🚪 Logout</a>
+</main>
+
+<div id="detailsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+        <div class="modal-heading"><div id="modalTitle" class="modal-title">Order details</div></div>
+        <div id="modalBody"></div>
+        <button type="button" class="close-button" onclick="closeDetails()">Close details</button>
+    </div>
+</div>
+<div id="transferModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="transferTitle">
+    <div class="modal-content">
+        <div class="modal-heading"><div id="transferTitle" class="modal-title">Transfer delivery order</div></div>
+        @if (Model.TransferWorkers.Count == 0)
+        {
+            <div class="message error">No other active delivery workers are available to receive this order.</div>
+            <button type="button" class="close-button" onclick="closeTransfer()">Close</button>
+        }
+        else
+        {
+            <form method="post" asp-page-handler="Transfer" class="transfer-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="transferOrderID" name="orderID" />
+                <div>
+                    <label for="newWorkerID">Choose the receiving worker</label>
+                    <select id="newWorkerID" name="newWorkerID" required>
+                        <option value="">Select a worker</option>
+                        @foreach (var worker in Model.TransferWorkers)
+                        {
+                            <option value="@worker.DeliveryWorkerID">@(string.IsNullOrWhiteSpace(worker.Phone) ? worker.FullName : $"{worker.FullName} — {worker.Phone}")</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="transferNotes">Note (optional)</label>
+                    <textarea id="transferNotes" name="notes" maxlength="500" placeholder="Optional reason or handover note"></textarea>
+                </div>
+                <button type="submit" class="transfer-submit">Confirm transfer</button>
+                <button type="button" class="close-button" onclick="closeTransfer()">Cancel</button>
+            </form>
+        }
+    </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+    function openWaze(latitude, longitude) {
+        if (!latitude || !longitude) { showToast("Customer location is not available."); return; }
+        const lat = Number(latitude), lon = Number(longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+            showToast("The customer coordinates are invalid."); return;
+        }
+        window.location.href = "https://waze.com/ul?ll=" + encodeURIComponent(lat + "," + lon) + "&navigate=yes";
+    }
+
+    async function copyLocation(location) {
+        if (!location) return;
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(location);
+                showToast("Customer location copied.");
+            } else {
+                window.prompt("Copy customer coordinates:", location);
+            }
+        } catch { window.prompt("Copy customer coordinates:", location); }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        if (showToast.timer) clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    function appendLine(parent, label, value, icon) {
+        if (value === null || value === undefined || value === "") return;
+        const line = document.createElement("div");
+        line.className = "modal-line";
+        const labelNode = document.createElement("strong");
+        labelNode.textContent = icon + " " + label + ": ";
+        const valueNode = document.createElement("span");
+        valueNode.textContent = value;
+        line.append(labelNode, valueNode);
+        parent.appendChild(line);
+    }
+
+    function showDetails(button) {
+        const body = document.getElementById("modalBody");
+        body.replaceChildren();
+        appendLine(body, "Order", "#" + button.dataset.orderId, "📦");
+        appendLine(body, "Customer", button.dataset.customer, "👤");
+        appendLine(body, "Phone", button.dataset.phone, "📞");
+        appendLine(body, "Address", button.dataset.address, "📍");
+        appendLine(body, "Notes", button.dataset.notes, "📝");
+
+        const lat = button.dataset.lat, lon = button.dataset.lon;
+        if (lat && lon) {
+            const box = document.createElement("div");
+            box.className = "modal-location";
+            const title = document.createElement("div");
+            title.className = "modal-location-title";
+            title.textContent = "📍 Customer location";
+            const coords = document.createElement("div");
+            coords.className = "modal-location-value";
+            coords.textContent = lat + ", " + lon;
+            const waze = document.createElement("button");
+            waze.type = "button";
+            waze.className = "modal-waze";
+            waze.textContent = "🧭 Navigate with Waze";
+            waze.addEventListener("click", () => openWaze(lat, lon));
+            box.append(title, coords, waze);
+            body.appendChild(box);
+        } else {
+            appendLine(body, "Location", "Not provided", "📍");
+        }
+        document.getElementById("detailsModal").style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeDetails() {
+        document.getElementById("detailsModal").style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+
+    function openTransfer(orderId) {
+        const orderInput = document.getElementById("transferOrderID");
+        const modal = document.getElementById("transferModal");
+        if (!modal) return;
+        if (orderInput) orderInput.value = orderId;
+        const select = document.getElementById("newWorkerID");
+        if (select) select.value = "";
+        const notes = document.getElementById("transferNotes");
+        if (notes) notes.value = "";
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeTransfer() {
+        const modal = document.getElementById("transferModal");
+        if (modal) modal.style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+    document.getElementById("detailsModal").addEventListener("click", function(event) {
+        if (event.target === this) closeDetails();
+    });
+    const transferModal = document.getElementById("transferModal");
+    if (transferModal) {
+        transferModal.addEventListener("click", function(event) {
+            if (event.target === this) closeTransfer();
+        });
+    }
+
+    document.addEventListener("click", function(event) {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+        if (target.dataset.action === "waze") openWaze(target.dataset.lat, target.dataset.lon);
+        else if (target.dataset.action === "copy-location") copyLocation(target.dataset.location);
+        else if (target.dataset.action === "details") showDetails(target);
+        else if (target.dataset.action === "transfer") {
+            openTransfer(target.dataset.orderId);
+        }
+    });
+
+    document.querySelectorAll(".filter-button").forEach(button => {
+        button.addEventListener("click", function() {
+            const filter = this.dataset.filter;
+            let visibleCount = 0;
+            document.querySelectorAll(".filter-button").forEach(item => item.classList.toggle("active", item === this));
+            document.querySelectorAll(".order-card").forEach(card => {
+                const visible = filter === "All" || card.dataset.orderStatus === filter;
+                card.style.display = visible ? "" : "none";
+                if (visible) visibleCount++;
+            });
+            const empty = document.getElementById("filteredEmpty");
+            if (empty) empty.style.display = visibleCount === 0 ? "block" : "none";
+        });
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") { closeDetails(); closeTransfer(); }
+    });
+
+    // Refresh the dashboard automatically so newly assigned delivery orders
+    // appear without requiring the worker to press Refresh every time.
+    window.setInterval(() => {
+        const modalOpen = document.getElementById("transferModal")?.style.display === "flex" ||
+            document.getElementById("detailsModal")?.style.display === "flex";
+        if (!modalOpen && !document.hidden) window.location.reload();
+    }, 30000);
+
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function() {
+            navigator.serviceWorker.register("/service-worker.js", { scope: "/" })
+                .catch(error => console.error("Service worker registration failed:", error));
+        });
+    }
+</script>
+</body>
+</html>
