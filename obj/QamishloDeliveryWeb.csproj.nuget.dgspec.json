@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Programming\\C++\\QamishloDeliveryWeb\\QamishloDeliveryWeb\\QamishloDeliveryWeb.csproj": {}
+    "C:\\Programming\\Qamishlo_System_Last_Version\\Qamishlo_Updated_System\\QamishloDeliveryWeb\\QamishloDeliveryWeb.csproj": {}
   },
   "projects": {
-    "C:\\Programming\\C++\\QamishloDeliveryWeb\\QamishloDeliveryWeb\\QamishloDeliveryWeb.csproj": {
+    "C:\\Programming\\Qamishlo_System_Last_Version\\Qamishlo_Updated_System\\QamishloDeliveryWeb\\QamishloDeliveryWeb.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Programming\\C++\\QamishloDeliveryWeb\\QamishloDeliveryWeb\\QamishloDeliveryWeb.csproj",
+        "projectUniqueName": "C:\\Programming\\Qamishlo_System_Last_Version\\Qamishlo_Updated_System\\QamishloDeliveryWeb\\QamishloDeliveryWeb.csproj",
         "projectName": "QamishloDeliveryWeb",
-        "projectPath": "C:\\Programming\\C++\\QamishloDeliveryWeb\\QamishloDeliveryWeb\\QamishloDeliveryWeb.csproj",
+        "projectPath": "C:\\Programming\\Qamishlo_System_Last_Version\\Qamishlo_Updated_System\\QamishloDeliveryWeb\\QamishloDeliveryWeb.csproj",
         "packagesPath": "C:\\Users\\hamoa\\.nuget\\packages\\",
-        "outputPath": "C:\\Programming\\C++\\QamishloDeliveryWeb\\QamishloDeliveryWeb\\obj\\",
+        "outputPath": "C:\\Programming\\Qamishlo_System_Last_Version\\Qamishlo_Updated_System\\QamishloDeliveryWeb\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

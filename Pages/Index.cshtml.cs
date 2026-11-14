@@ -7,10 +7,12 @@ namespace QamishloDeliveryWeb.Pages
     public class IndexModel : PageModel
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<IndexModel> _logger;
 
-        public IndexModel(IHttpClientFactory httpClientFactory)
+        public IndexModel(IHttpClientFactory httpClientFactory, ILogger<IndexModel> logger)
         {
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         // =====================================================
@@ -31,6 +33,9 @@ namespace QamishloDeliveryWeb.Pages
         // =====================================================
 
         public List<DeliveryOrder> Orders { get; set; } =
+            new List<DeliveryOrder>();
+
+        public List<DeliveryOrder> TodayOrders { get; set; } =
             new List<DeliveryOrder>();
 
         public string OrdersLoadError { get; set; } = "";
@@ -90,6 +95,7 @@ namespace QamishloDeliveryWeb.Pages
             }
 
             await LoadOrdersAsync();
+            await LoadTodayOrdersAsync();
             await LoadTodayStatisticsAsync();
             await LoadTransferTargetsAsync();
 
@@ -233,6 +239,33 @@ namespace QamishloDeliveryWeb.Pages
 
 
         // =====================================================
+        // LOAD ALL ORDERS ASSIGNED TO THIS DRIVER TODAY
+        // =====================================================
+
+        private async Task LoadTodayOrdersAsync()
+        {
+            try
+            {
+                using HttpClient client = CreateWorkerApiClient();
+                using HttpResponseMessage response = await client.GetAsync(
+                    $"api/deliveryworkers/{WorkerID}/today-orders");
+                if (!response.IsSuccessStatusCode)
+                {
+                    TodayOrders = new List<DeliveryOrder>();
+                    return;
+                }
+                WorkerOrdersResponse? result = await response.Content.ReadFromJsonAsync<WorkerOrdersResponse>();
+                TodayOrders = result?.Success == true && result.Orders != null
+                    ? result.Orders
+                    : new List<DeliveryOrder>();
+            }
+            catch
+            {
+                TodayOrders = new List<DeliveryOrder>();
+            }
+        }
+
+        // =====================================================
         // LOAD TODAY STATISTICS
         // =====================================================
 
@@ -285,6 +318,112 @@ namespace QamishloDeliveryWeb.Pages
 
 
         // =====================================================
+        // END SHIFT
+        // =====================================================
+
+        public async Task<IActionResult> OnPostEndShiftAsync()
+        {
+            LoadWorkerSession();
+            if (WorkerID <= 0) return RedirectToPage("/Login");
+            try
+            {
+                using HttpClient client = CreateWorkerApiClient();
+                using HttpResponseMessage response = await client.PostAsync(
+                    $"api/deliveryworkers/{WorkerID}/end-shift", null);
+                string content = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "End-shift request for worker {WorkerID} returned HTTP {StatusCode}: {Body}",
+                        WorkerID, (int)response.StatusCode, SafeLogBody(content));
+                    string apiMessage = TryReadApiMessage(content);
+                    TempData["StatusError"] = !string.IsNullOrWhiteSpace(apiMessage)
+                        ? apiMessage
+                        : response.StatusCode == System.Net.HttpStatusCode.Conflict
+                            ? "لا يمكن إنهاء الدوام قبل تسليم الطلبات النشطة أو تحويلها."
+                            : $"تعذر إنهاء الدوام (HTTP {(int)response.StatusCode}). حاول مجدداً.";
+                    return RedirectToPage();
+                }
+                HttpContext.Session.Clear();
+                TempData["LoginSuccess"] = "تم تسجيل نهاية الدوام بنجاح.";
+                return RedirectToPage("/Login");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(ex, "End-shift request timed out for worker {WorkerID}.", WorkerID);
+                TempData["StatusError"] = "انتهت مهلة الاتصال أثناء إنهاء الدوام. لم نتمكن من تأكيد العملية؛ حدّث الصفحة وتحقق من حالة الدوام.";
+                return RedirectToPage();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "End-shift API connection failed for worker {WorkerID}.", WorkerID);
+                TempData["StatusError"] = "تعذر الاتصال بخادم المطعم أثناء إنهاء الدوام. تحقق من الإنترنت وحاول مجدداً.";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected end-shift error for worker {WorkerID}.", WorkerID);
+                TempData["StatusError"] = "حدث خطأ غير متوقع أثناء إنهاء الدوام.";
+                return RedirectToPage();
+            }
+        }
+
+        // Browser geolocation is forwarded through this same-origin Razor handler.
+        public async Task<IActionResult> OnPostLocationAsync(double latitude, double longitude)
+        {
+            LoadWorkerSession();
+            if (WorkerID <= 0) return Unauthorized();
+            if (!double.IsFinite(latitude) || !double.IsFinite(longitude) ||
+                latitude is < -90 or > 90 || longitude is < -180 or > 180)
+                return BadRequest(new { success = false, message = "إحداثيات GPS غير صالحة." });
+            try
+            {
+                using HttpClient client = CreateWorkerApiClient();
+                using HttpResponseMessage response = await client.PostAsJsonAsync(
+                    $"api/deliveryworkers/{WorkerID}/location",
+                    new { Latitude = latitude, Longitude = longitude });
+                string body = await response.Content.ReadAsStringAsync();
+                return new ContentResult
+                {
+                    StatusCode = (int)response.StatusCode,
+                    ContentType = "application/json",
+                    Content = string.IsNullOrWhiteSpace(body) ? "{}" : body
+                };
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(ex, "GPS forwarding timed out for worker {WorkerID}.", WorkerID);
+                return StatusCode(504, new { success = false, message = "انتهت مهلة إرسال الموقع. سيُعاد الإرسال عند توفر الاتصال." });
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogWarning(ex, "GPS forwarding failed for worker {WorkerID}.", WorkerID);
+                return StatusCode(503, new { success = false, message = "تعذر الاتصال بخادم المطعم لإرسال الموقع." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected GPS forwarding error for worker {WorkerID}.", WorkerID);
+                return StatusCode(500, new { success = false, message = "حدث خطأ أثناء معالجة موقع GPS." });
+            }
+        }
+
+        private static string SafeLogBody(string body)
+            => string.IsNullOrWhiteSpace(body) ? string.Empty : body[..Math.Min(body.Length, 500)];
+
+        private static string TryReadApiMessage(string body)
+        {
+            try
+            {
+                using var json = System.Text.Json.JsonDocument.Parse(body);
+                if (json.RootElement.TryGetProperty("message", out var message) &&
+                    message.ValueKind == System.Text.Json.JsonValueKind.String)
+                    return message.GetString() ?? string.Empty;
+            }
+            catch { }
+            return string.Empty;
+        }
+
+        // =====================================================
         // UPDATE ORDER STATUS
         // =====================================================
 
@@ -312,8 +451,7 @@ namespace QamishloDeliveryWeb.Pages
 
             string[] allowedStatuses =
             {
-                "Preparing",
-                "Ready",
+                "OutForDelivery",
                 "Delivered"
             };
 

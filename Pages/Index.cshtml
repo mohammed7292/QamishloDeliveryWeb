@@ -13,6 +13,7 @@
     <meta name="theme-color" content="#14110F" />
     <meta name="description" content="Qamishlo Delivery Worker Dashboard" />
     <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <title>Qamishlo Delivery</title>
     <style>
         :root {
@@ -124,6 +125,10 @@
         .empty-text { max-width:340px; margin:9px auto 0; color:var(--muted); font-size:13px; line-height:1.7; }
         .empty-filter { display:none; }
         .logout { display:flex; justify-content:center; align-items:center; width:100%; min-height:50px; margin-top:25px; padding:13px; border:1px solid rgba(240,108,93,.35); border-radius:16px; background:rgba(108,35,29,.18); color:#FFB6AD; text-decoration:none; font-weight:850; }
+        .button-danger { min-height:42px; padding:10px 14px; border:1px solid rgba(240,108,93,.45); border-radius:13px; background:rgba(108,35,29,.35); color:#FFB6AD; font-size:12px; font-weight:900; cursor:pointer; }
+        .history-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px; margin-bottom:9px; border:1px solid var(--line); border-radius:16px; background:var(--surface); }
+        .history-row strong { color:#fff; }
+        .history-meta { color:var(--muted); font-size:12px; margin-top:5px; }
         .modal { display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; padding:15px; background:rgba(5,4,4,.78); overflow-y:auto; backdrop-filter:blur(10px); }
         .modal-content { width:100%; max-width:500px; max-height:90dvh; overflow-y:auto; padding:22px; border:1px solid var(--line); border-radius:24px; background:var(--surface-strong); box-shadow:0 24px 70px rgba(0,0,0,.55); backdrop-filter:blur(20px); }
         .modal-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:17px; }
@@ -143,9 +148,19 @@
         .transfer-submit { width:100%; min-height:49px; border:0; border-radius:14px; background:linear-gradient(110deg,#F37A1F,#FF9B38); color:#20140C; font-weight:950; cursor:pointer; }
         .toast { position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:10000; width:max-content; max-width:calc(100% - 30px); padding:13px 17px; border:1px solid var(--line); border-radius:14px; background:#2A211C; color:#fff; font-size:13px; text-align:center; box-shadow:0 10px 30px #0007; transform:translate(-50%,20px); opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; }
         .toast.show { transform:translate(-50%,0); opacity:1; }
+        .driver-map-card { margin:18px 0 24px; padding:16px; border:1px solid var(--line); border-radius:20px; background:var(--surface); }
+        .driver-map-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; font-weight:900; }
+        #driverMap { width:100%; height:230px; border-radius:14px; overflow:hidden; background:#28231f; }
+        #gpsStatus { margin-top:9px; color:var(--muted); font-size:12px; line-height:1.6; }
         @@media(min-width:600px) { .container { padding-top:27px; } .stats { grid-template-columns:repeat(4,minmax(0,1fr)); } .stat-card { padding:16px 13px; } .stat-number { font-size:27px; } .stat-money { font-size:17px; } }
         @@media(max-width:380px) { .container { padding:12px 10px 30px; } .header { padding:20px 18px; border-radius:23px; } .welcome { font-size:23px; } .stat-card { padding:13px 11px; } .stat-number { font-size:26px; } .order-card { padding:15px; } .buttons { gap:7px; } .button { font-size:11px; } .location-buttons { grid-template-columns:1fr; } }
         @@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } }
+    </style>
+
+    <style>
+        .language-toggle { position:fixed; z-index:2000; top:calc(12px + env(safe-area-inset-top)); right:14px; min-width:86px; min-height:40px; padding:8px 13px; border:1px solid rgba(255,255,255,.2); border-radius:24px; background:rgba(37,32,29,.94); color:#FFB879; font:800 12px Inter,Segoe UI,Arial,sans-serif; box-shadow:0 8px 24px rgba(0,0,0,.3); backdrop-filter:blur(14px); cursor:pointer; }
+        html[dir="rtl"] .language-toggle { right:auto; left:14px; }
+        html[dir="rtl"] body { font-family:Tahoma,Segoe UI,Arial,sans-serif; }
     </style>
 </head>
 <body>
@@ -161,8 +176,11 @@
         <div class="welcome">Welcome back 👋</div>
         <div class="worker-name">@Model.WorkerName</div>
         <div class="header-bottom">
-            <div class="shift-label">🛵 Delivery dashboard</div>
-            <div class="shift-label">● Active session</div>
+            <div class="shift-label">🛵 Delivery dashboard · On shift</div>
+            <form id="endShiftForm" method="post" asp-page-handler="EndShift" onsubmit="return confirm('End your delivery shift now?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="button-danger">End Shift / نهاية وقت العمل</button>
+            </form>
         </div>
     </header>
 
@@ -301,20 +319,15 @@
                     }
                     @if (order.Status == "Preparing")
                     {
-                        <form method="post" asp-page-handler="Status">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="orderID" value="@order.OrderID" />
-                            <input type="hidden" name="status" value="Ready" />
-                            <button type="submit" class="button ready">📦 Picked up</button>
-                        </form>
+                        <div class="message info">The restaurant is preparing this order. The pickup button becomes available when the restaurant marks it Ready.</div>
                     }
                     @if (order.Status == "Ready")
                     {
                         <form method="post" asp-page-handler="Status">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="orderID" value="@order.OrderID" />
-                            <input type="hidden" name="status" value="Delivered" />
-                            <button type="submit" class="button delivered">✓ Delivered</button>
+                            <input type="hidden" name="status" value="OutForDelivery" />
+                            <button type="submit" class="button ready">📦 Pick up &amp; start delivery</button>
                         </form>
                     }
                     @if (order.Status == "OutForDelivery")
@@ -350,6 +363,123 @@
             <div class="empty-text">Choose another status to see your orders.</div>
         </div>
     }
+
+    <div class="section-title">All Orders Taken Today</div>
+    <div class="section-subtitle">Complete list of every order assigned to your account during today's business day, including completed orders assigned to you today.</div>
+    @if (Model.TodayOrders.Count == 0)
+    {
+        <div class="empty"><div class="empty-icon">🗓️</div><div class="empty-title">No orders recorded today</div><div class="empty-text">Orders assigned to your account today will appear here.</div></div>
+    }
+    else
+    {
+        foreach (var order in Model.TodayOrders)
+        {
+            <article class="history-row">
+                <div><strong>#@order.OrderID · @order.CustomerName</strong><div class="history-meta">@order.OrderDate.ToString("HH:mm") · @order.OrderType · @order.Status</div></div>
+                <strong>@order.TotalAmount.ToString("N0") IQD</strong>
+            </article>
+        }
+    }
+
+    <section class="driver-map-card" aria-labelledby="driverMapTitle">
+        <div class="driver-map-heading"><span id="driverMapTitle">📍 My Live Location</span><span class="history-meta">GPS</span></div>
+        <div id="driverMap" role="img" aria-label="Your current GPS location on the map"></div>
+        <div id="gpsStatus" role="status" aria-live="polite">Waiting for GPS permission…</div>
+    </section>
+
+    <form id="locationTokenForm" method="post" asp-page-handler="Location" style="display:none">
+        @Html.AntiForgeryToken()
+    </form>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    (() => {
+      const token = document.querySelector('#locationTokenForm input[name="__RequestVerificationToken"]')?.value;
+      const status = document.getElementById('gpsStatus');
+      const endShiftForm = document.getElementById('endShiftForm');
+      let watchId = null;
+      let sendTimer = null;
+      let latestPosition = null;
+      let sending = false;
+      let marker = null;
+      let map = null;
+      const setStatus = message => { if (status) status.textContent = message; };
+
+      if (window.L && document.getElementById('driverMap')) {
+        map = L.map('driverMap', { zoomControl:true }).setView([36.1911, 44.0092], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(map);
+        setTimeout(() => map.invalidateSize(), 200);
+      }
+
+      const stopLocationUpdates = () => {
+        if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
+        if (sendTimer !== null) window.clearInterval(sendTimer);
+        watchId = null; sendTimer = null;
+      };
+
+      const renderPosition = position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return;
+        const point = [lat, lon];
+        if (map) {
+          if (!marker) marker = L.marker(point).addTo(map).bindPopup('Your current location');
+          else marker.setLatLng(point);
+          map.setView(point, Math.max(map.getZoom(), 15));
+        }
+        setStatus('GPS active · Last position: ' + lat.toFixed(6) + ', ' + lon.toFixed(6));
+      };
+
+      const sendLatestPosition = async () => {
+        if (!token || !latestPosition || sending || document.visibilityState === 'hidden' || !navigator.onLine) return;
+        const age = Date.now() - latestPosition.timestamp;
+        if (!Number.isFinite(age) || age < 0 || age > 45000) {
+          if (age > 45000) setStatus('GPS position is old. Waiting for a fresh GPS reading…');
+          return;
+        }
+        const lat = latestPosition.coords.latitude;
+        const lon = latestPosition.coords.longitude;
+        if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return;
+        sending = true;
+        const body = new URLSearchParams();
+        body.set('latitude', String(lat));
+        body.set('longitude', String(lon));
+        body.set('__RequestVerificationToken', token);
+        try {
+          const response = await fetch('?handler=Location', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','RequestVerificationToken':token}, body:body.toString(), credentials:'same-origin', cache:'no-store' });
+          if (response.ok) {
+            setStatus('GPS location sent successfully · ' + new Date().toLocaleTimeString());
+          } else {
+            const result = await response.json().catch(() => null);
+            setStatus(result?.message || ('Could not send GPS location (HTTP ' + response.status + ').'));
+          }
+        } catch (error) {
+          setStatus('Connection lost. GPS will retry when internet returns.');
+        } finally { sending = false; }
+      };
+
+      if (!token) { setStatus('GPS could not start because the secure page token is missing. Refresh the page.'); return; }
+      if (!window.isSecureContext) { setStatus('GPS requires the secure HTTPS website. Open the published HTTPS link.'); return; }
+      if (!navigator.geolocation) { setStatus('This browser does not support GPS location.'); return; }
+
+      watchId = navigator.geolocation.watchPosition(position => {
+        if (!Number.isFinite(position.timestamp) || Date.now() - position.timestamp > 45000) return;
+        latestPosition = position;
+        renderPosition(position);
+        sendLatestPosition();
+      }, error => {
+        const messages = { 1:'Location permission was denied. Allow location access for this website.', 2:'GPS position is unavailable. Turn on Location Services and try again.', 3:'GPS request timed out. Waiting for another reading…' };
+        setStatus(messages[error.code] || 'Unable to read GPS location.');
+      }, { enableHighAccuracy:true, maximumAge:10000, timeout:20000 });
+
+      // Send a fresh reading at a fixed cadence even when the device is stationary.
+      sendTimer = window.setInterval(sendLatestPosition, 10000);
+      window.addEventListener('online', () => { setStatus('Internet restored. Resuming GPS updates…'); sendLatestPosition(); });
+      window.addEventListener('offline', () => setStatus('No internet connection. GPS updates are paused.'));
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') sendLatestPosition(); });
+      endShiftForm?.addEventListener('submit', () => stopLocationUpdates());
+      window.addEventListener('pagehide', stopLocationUpdates, { once:true });
+    })();
+    </script>
 
     <a href="/Logout" class="logout">🚪 Logout</a>
 </main>
@@ -551,5 +681,6 @@
         });
     }
 </script>
+    <script src="/js/language.js?v=1"></script>
 </body>
 </html>

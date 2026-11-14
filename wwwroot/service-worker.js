@@ -1,4 +1,4 @@
-const CACHE_NAME = "qamishlo-delivery-warmdark-v2";
+const CACHE_NAME = "qamishlo-delivery-bilingual-v3";
 
 const APP_SHELL = [
     "/manifest.json"

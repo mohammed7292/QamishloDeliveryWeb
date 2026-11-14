@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QamishloDeliveryWeb")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+22e65282eeef50c4f8700f7953e157babaa8c539")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("QamishloDeliveryWeb")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QamishloDeliveryWeb")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -7,10 +7,12 @@ namespace QamishloDeliveryWeb.Pages
     public class LoginModel : PageModel
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(IHttpClientFactory httpClientFactory)
+        public LoginModel(IHttpClientFactory httpClientFactory, ILogger<LoginModel> logger)
         {
             _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         [BindProperty]
@@ -38,9 +40,7 @@ namespace QamishloDeliveryWeb.Pages
 
             try
             {
-                var client =
-                    _httpClientFactory.CreateClient(
-                        "QamishloAPI");
+                using var client = _httpClientFactory.CreateClient("QamishloAPI");
 
                 var request = new DeliveryLoginRequest
                 {
@@ -48,22 +48,24 @@ namespace QamishloDeliveryWeb.Pages
                     Password = Password
                 };
 
-                var response =
-                    await client.PostAsJsonAsync(
-                        "api/DeliveryWorkers/login",
-                        request);
+                using var response = await client.PostAsJsonAsync(
+                    "api/DeliveryWorkers/login", request);
 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+                    response.StatusCode == System.Net.HttpStatusCode.Forbidden)
                 {
-                    ErrorMessage =
-                        "Invalid username or password.";
-
+                    ErrorMessage = "اسم المستخدم أو كلمة المرور غير صحيحة، أو أن الحساب غير نشط.";
                     return Page();
                 }
 
-                var result =
-                    await response.Content
-                        .ReadFromJsonAsync<DeliveryLoginResponse>();
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Delivery login API returned HTTP {StatusCode}.", (int)response.StatusCode);
+                    ErrorMessage = "خادم المطعم غير متاح حالياً. حاول بعد قليل.";
+                    return Page();
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<DeliveryLoginResponse>();
 
                 if (result == null || !result.Success)
                 {
@@ -94,11 +96,22 @@ namespace QamishloDeliveryWeb.Pages
 
                 return RedirectToPage("/Index");
             }
-            catch (Exception)
+            catch (TaskCanceledException ex)
             {
-                ErrorMessage =
-                    "Cannot connect to the restaurant server.";
-
+                _logger.LogWarning(ex, "Delivery login request timed out.");
+                ErrorMessage = "انتهت مهلة الاتصال بخادم المطعم. تحقق من الإنترنت وحاول مجدداً.";
+                return Page();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Delivery login could not reach the restaurant API.");
+                ErrorMessage = "تعذر الاتصال بخادم المطعم. تحقق من اتصال الإنترنت وحاول مجدداً.";
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected delivery login error.");
+                ErrorMessage = "حدث خطأ غير متوقع أثناء تسجيل الدخول.";
                 return Page();
             }
         }
