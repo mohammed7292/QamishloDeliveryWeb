@@ -1,0 +1,1046 @@
+@page
+@model QamishloDeliveryWeb.Pages.IndexModel
+@{
+    ViewData["Title"] = "توصيل قامشلو";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#14110F" />
+    <meta name="description" content="توصيل قامشلو Worker Dashboard" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>توصيل قامشلو</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" onerror="var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';document.head.appendChild(s);"></script>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #14110F;
+            --surface: rgba(37, 32, 29, .78);
+            --surface-strong: rgba(31, 27, 25, .94);
+            --line: rgba(255, 255, 255, .12);
+            --line-active: rgba(243, 122, 31, .65);
+            --orange: #F37A1F;
+            --orange-bright: #FF922E;
+            --glow: #4A2810;
+            --text: #FFFFFF;
+            --muted: #9E9690;
+            --green: #39B978;
+            --blue: #62A9F5;
+            --red: #F06C5D;
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; background: var(--bg); }
+        body {
+            margin: 0; min-height: 100vh; min-height: 100dvh;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(ellipse at 15% 0%, rgba(74,40,16,.55), transparent 42%),
+                radial-gradient(ellipse at 100% 18%, rgba(243,122,31,.13), transparent 34%),
+                radial-gradient(ellipse at 50% 100%, rgba(74,40,16,.22), transparent 48%),
+                var(--bg);
+            background-attachment: fixed;
+        }
+        button, input, select, textarea { font: inherit; }
+        button, a { -webkit-tap-highlight-color: transparent; }
+        a { color: inherit; }
+        .container { width: 100%; max-width: 780px; margin: auto; padding: 18px 15px calc(35px + env(safe-area-inset-bottom)); }
+        .header {
+            position: relative; overflow: hidden; isolation: isolate;
+            padding: 25px 23px; margin-bottom: 22px;
+            border: 1px solid var(--line); border-radius: 28px;
+            background: linear-gradient(135deg, rgba(53,43,36,.92), rgba(28,25,23,.82));
+            box-shadow: 0 18px 50px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.06);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        }
+        .header:before { content:""; position:absolute; z-index:-1; width:230px; height:230px; right:-65px; top:-95px; border-radius:50%; background:rgba(243,122,31,.18); filter:blur(45px); }
+        .header:after { content:"🛵"; position:absolute; z-index:-1; right:13px; bottom:8px; font-size:82px; opacity:.15; transform:rotate(-10deg); pointer-events:none; }
+        .brand-row { display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
+        .brand-icon { display:grid; place-items:center; width:50px; height:50px; flex-shrink:0; border-radius:17px; background:linear-gradient(145deg,var(--orange-bright),var(--orange)); color:#20140C; font-size:18px; font-weight:1000; box-shadow:0 7px 24px rgba(243,122,31,.28); }
+        .brand-name { font-size:18px; line-height:1.3; font-weight:950; letter-spacing:.5px; }
+        .brand-subtitle { margin-top:4px; color:var(--muted); font-size:12px; }
+        .welcome { position:relative; z-index:1; margin-top:26px; font-size:27px; line-height:1.25; font-weight:900; letter-spacing:-.6px; }
+        .worker-name { position:relative; z-index:1; margin-top:8px; color:#E8DED7; font-size:15px; font-weight:700; overflow-wrap:anywhere; }
+        .header-bottom { display:flex; align-items:center; justify-content:space-between; gap:9px; margin-top:19px; position:relative; z-index:1; flex-wrap:wrap; }
+        .shift-label { display:inline-flex; align-items:center; gap:7px; padding:9px 12px; border:1px solid var(--line); border-radius:30px; background:rgba(255,255,255,.07); color:#EDE5DF; font-size:12px; font-weight:750; }
+        .section-title { margin:25px 3px 9px; font-size:22px; font-weight:900; letter-spacing:-.35px; }
+        .section-subtitle { margin:0 3px 15px; color:var(--muted); font-size:13px; line-height:1.55; }
+        .stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; margin-bottom:16px; }
+        .stat-card { min-width:0; padding:17px 16px; border:1px solid var(--line); border-radius:22px; background:var(--surface); box-shadow:0 12px 30px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.04); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+        .stat-icon { display:grid; place-items:center; width:42px; height:42px; border:1px solid rgba(243,122,31,.22); border-radius:15px; background:rgba(243,122,31,.11); font-size:21px; }
+        .stat-title { margin-top:13px; color:var(--muted); font-size:12px; line-height:1.45; }
+        .stat-number { margin-top:5px; color:var(--orange-bright); font-size:30px; font-weight:950; overflow-wrap:anywhere; }
+        .stat-money { font-size:clamp(17px,4.5vw,23px); }
+        .refresh-button { display:flex; align-items:center; justify-content:center; gap:9px; width:100%; min-height:50px; padding:13px; border:1px solid var(--line); border-radius:16px; background:var(--surface); color:#F8F1EC; font-weight:850; text-decoration:none; cursor:pointer; box-shadow:inset 0 1px rgba(255,255,255,.04); backdrop-filter:blur(16px); }
+        .refresh-button:hover { border-color:var(--line-active); background:rgba(243,122,31,.09); }
+        .message { padding:14px 15px; margin-bottom:13px; border-radius:15px; line-height:1.55; font-size:13px; font-weight:750; overflow-wrap:anywhere; backdrop-filter:blur(16px); }
+        .success { border:1px solid rgba(57,185,120,.35); background:rgba(24,91,58,.22); color:#A7F0C7; }
+        .error { border:1px solid rgba(240,108,93,.42); background:rgba(108,35,29,.22); color:#FFB6AD; }
+        .order-filters { display:flex; gap:8px; overflow-x:auto; padding:2px 0 10px; margin-bottom:7px; scrollbar-width:none; }
+        .order-filters::-webkit-scrollbar { display:none; }
+        .filter-button { flex:0 0 auto; padding:10px 15px; border:1px solid var(--line); border-radius:30px; background:rgba(37,32,29,.75); color:var(--muted); font-size:12px; font-weight:800; cursor:pointer; }
+        .filter-button.active { border-color:var(--orange); background:rgba(243,122,31,.17); color:#FFC18E; box-shadow:0 0 18px rgba(243,122,31,.12); }
+        .order-card { min-width:0; padding:19px; margin-bottom:15px; border:1px solid var(--line); border-radius:25px; background:var(--surface); box-shadow:0 14px 34px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.045); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+        .order-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,.09); }
+        .order-label { color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.9px; }
+        .order-number { margin-top:5px; color:#fff; font-size:24px; font-weight:950; overflow-wrap:anywhere; }
+        .status { display:inline-block; flex:0 0 auto; max-width:52%; padding:8px 12px; border:1px solid rgba(243,122,31,.38); border-radius:30px; background:rgba(243,122,31,.14); color:#FFBF87; font-size:11px; font-weight:850; text-align:center; overflow-wrap:anywhere; }
+        .status[data-status="Delivered"] { color:#9FE8BD; background:rgba(38,139,83,.16); border-color:rgba(57,185,120,.35); }
+        .status[data-status="Ready"], .status[data-status="OutForDelivery"] { color:#A8D4FF; background:rgba(48,119,184,.16); border-color:rgba(98,169,245,.33); }
+        .order-info { display:grid; gap:12px; padding:16px 0 3px; }
+        .info { display:flex; align-items:flex-start; gap:10px; color:#D5CCC5; font-size:13px; line-height:1.65; overflow-wrap:anywhere; min-width:0; }
+        .info-icon { flex:0 0 22px; text-align:center; }
+        .info-content { min-width:0; }
+        .info strong { color:#fff; }
+        .items-box { margin-top:6px; padding:12px 14px; border-radius:15px; background:rgba(243,122,31,.09); border:1px solid rgba(243,122,31,.28); color:#F8EFE8; font-size:13px; line-height:1.65; }
+        .items-box-title { color:#FFB879; font-weight:900; font-size:12px; margin-bottom:5px; }
+        .location-box { padding:15px; margin-top:15px; border:1px solid rgba(243,122,31,.28); border-radius:18px; background:rgba(243,122,31,.07); }
+        .location-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+        .location-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:13px; background:rgba(243,122,31,.15); font-size:19px; }
+        .location-title { color:#FFB879; font-size:14px; font-weight:900; }
+        .location-subtitle { margin-top:4px; color:var(--muted); font-size:11px; }
+        .location-coordinates { padding:12px; margin-bottom:10px; border:1px solid var(--line); border-radius:12px; background:rgba(0,0,0,.2); color:#F4EAE2; text-align:center; font-size:13px; font-weight:750; overflow-wrap:anywhere; }
+        .location-buttons { display:grid; grid-template-columns:1.25fr 1fr; gap:9px; }
+        .waze-button,.copy-location-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:48px; padding:11px 10px; border:1px solid var(--line); border-radius:12px; color:#fff; font-size:12px; font-weight:850; cursor:pointer; }
+        .waze-button { background:linear-gradient(120deg,#A75417,#F37A1F); border-color:rgba(255,160,91,.34); }
+        .copy-location-button { background:rgba(255,255,255,.08); }
+        .location-missing { padding:12px; margin-top:14px; border:1px solid var(--line); border-radius:13px; background:rgba(0,0,0,.14); color:var(--muted); font-size:12px; text-align:center; }
+        .total { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:17px; padding-top:16px; border-top:1px solid rgba(255,255,255,.09); }
+        .total-label { color:var(--muted); font-size:13px; }
+        .total-value { color:var(--orange-bright); font-size:22px; font-weight:950; text-align:right; overflow-wrap:anywhere; }
+        .buttons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:15px; }
+        .button { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-width:0; min-height:50px; padding:11px 10px; border:1px solid transparent; border-radius:14px; color:white; text-align:center; text-decoration:none; font-size:12px; font-weight:850; line-height:1.35; cursor:pointer; overflow-wrap:anywhere; transition:transform .16s ease,filter .16s ease,border-color .16s ease; }
+        .button:hover { filter:brightness(1.08); transform:translateY(-1px); }
+        .buttons form { min-width:0; }
+        .whatsapp { background:rgba(37,131,75,.86); border-color:rgba(82,205,133,.32); }
+        .accept,.ready { background:linear-gradient(110deg,#F37A1F,#FF9B38); color:#20140C; box-shadow:0 7px 18px rgba(243,122,31,.16); }
+        .delivered { background:linear-gradient(125deg,#1D7F48,#28A75E); border-color:rgba(97,228,153,.45); box-shadow:0 8px 20px rgba(40,167,94,.22); font-size:13px; }
+        .details { background:rgba(255,255,255,.075); color:#F5EDE7; border-color:var(--line); }
+        .transfer { background:rgba(243,122,31,.12); color:#FFBC83; border-color:rgba(243,122,31,.35); grid-column:1/-1; }
+        .btn-svg-icon { width:22px; height:22px; flex-shrink:0; display:inline-block; vertical-align:middle; }
+        .btn-svg-check-lg { width:26px; height:26px; flex-shrink:0; display:inline-block; vertical-align:middle; filter:drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
+        .empty { padding:34px 22px; border:1px solid var(--line); border-radius:23px; background:var(--surface); text-align:center; backdrop-filter:blur(16px); }
+        .empty-icon { font-size:42px; margin-bottom:13px; }
+        .empty-title { color:#fff; font-size:18px; font-weight:900; }
+        .empty-text { max-width:340px; margin:9px auto 0; color:var(--muted); font-size:13px; line-height:1.7; }
+        .empty-filter { display:none; }
+        .logout { display:flex; justify-content:center; align-items:center; width:100%; min-height:50px; margin-top:25px; padding:13px; border:1px solid rgba(240,108,93,.35); border-radius:16px; background:rgba(108,35,29,.18); color:#FFB6AD; text-decoration:none; font-weight:850; }
+        .modal { display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; padding:15px; background:rgba(5,4,4,.78); overflow-y:auto; backdrop-filter:blur(10px); }
+        .modal-content { width:100%; max-width:500px; max-height:90dvh; overflow-y:auto; padding:22px; border:1px solid var(--line); border-radius:24px; background:var(--surface-strong); box-shadow:0 24px 70px rgba(0,0,0,.55); backdrop-filter:blur(20px); }
+        .modal-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:17px; }
+        .modal-title { color:#FFB879; font-size:21px; font-weight:950; }
+        .modal-line { margin:12px 0; color:#E4DAD2; font-size:13px; line-height:1.7; overflow-wrap:anywhere; white-space:pre-wrap; }
+        .modal-line strong { color:#fff; }
+        .modal-location { margin-top:15px; padding:13px; border:1px solid rgba(243,122,31,.3); border-radius:15px; background:rgba(243,122,31,.07); }
+        .modal-location-title { margin-bottom:10px; color:#FFB879; font-weight:900; }
+        .modal-location-value { padding:10px; margin-bottom:10px; border-radius:10px; background:rgba(0,0,0,.2); border:1px solid var(--line); text-align:center; font-weight:750; overflow-wrap:anywhere; }
+        .modal-waze { display:inline-flex; align-items:center; justify-content:center; gap:9px; width:100%; padding:13px; border:0; border-radius:12px; background:linear-gradient(110deg,#F37A1F,#FF9B38); color:#20140C; text-align:center; font-weight:900; cursor:pointer; }
+        .close-button { width:100%; min-height:47px; margin-top:17px; padding:12px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.08); color:#fff; font-weight:900; cursor:pointer; }
+        .transfer-form { display:grid; gap:15px; }
+        .transfer-form label { display:block; margin-bottom:8px; color:#F3E9E1; font-size:13px; font-weight:800; }
+        .transfer-form select,.transfer-form textarea { width:100%; min-height:48px; padding:12px 13px; border:1px solid var(--line); border-radius:13px; background:#1B1715; color:#fff; outline:none; }
+        .transfer-form textarea { min-height:90px; resize:vertical; }
+        .transfer-form select:focus,.transfer-form textarea:focus { border-color:var(--orange); box-shadow:0 0 0 3px rgba(243,122,31,.14); }
+        .transfer-submit { width:100%; min-height:49px; border:0; border-radius:14px; background:linear-gradient(110deg,#F37A1F,#FF9B38); color:#20140C; font-weight:950; cursor:pointer; }
+        .toast { position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); z-index:10000; width:max-content; max-width:calc(100% - 30px); padding:13px 17px; border:1px solid var(--line); border-radius:14px; background:#2A211C; color:#fff; font-size:13px; text-align:center; box-shadow:0 10px 30px #0007; transform:translate(-50%,20px); opacity:0; pointer-events:none; transition:opacity .2s,transform .2s; }
+        .toast.show { transform:translate(-50%,0); opacity:1; }
+        @@media(min-width:600px) { .container { padding-top:27px; } .stats { grid-template-columns:repeat(4,minmax(0,1fr)); } .stat-card { padding:16px 13px; } .stat-number { font-size:27px; } .stat-money { font-size:17px; } }
+        @@media(max-width:380px) { .container { padding:12px 10px 30px; } .header { padding:20px 18px; border-radius:23px; } .welcome { font-size:23px; } .stat-card { padding:13px 11px; } .stat-number { font-size:26px; } .order-card { padding:15px; } .buttons { gap:7px; } .button { font-size:11px; } .location-buttons { grid-template-columns:1fr; } }
+        @@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } }
+            .qamishlo-dark-tiles { filter: invert(100%) hue-rotate(180deg) brightness(92%) contrast(93%) sepia(18%) saturate(85%); }
+        .live-map-card { padding:14px; margin-bottom:18px; border:1px solid rgba(243,122,31,.42); border-radius:22px; background:var(--surface); }
+        .live-map-top { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+        .live-map-title { font-size:15px; font-weight:900; color:#FFB879; }
+        .gps-pill { font-size:11px; font-weight:800; padding:5px 10px; border-radius:20px; background:rgba(57,185,120,.18); color:#9FE8BD; border:1px solid rgba(57,185,120,.35); }
+        #driverErbilMap { width:100%; height:290px; border-radius:16px; border:1px solid rgba(255,255,255,.12); background:#14110F; z-index:1; }
+        .map-mode-bar { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+        .map-mode-pill { border:1px solid var(--line); background:rgba(255,255,255,.06); color:#E4DAD2; border-radius:10px; padding:7px 11px; font-size:12px; font-weight:800; cursor:pointer; }
+        .map-mode-pill.active { background:var(--orange); color:#14110F; border-color:var(--orange); }
+        .sound-picker-row { display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
+        .sound-select { background:#1B1715; color:#fff; border:1px solid var(--line); border-radius:10px; padding:6px 10px; font-size:12px; font-weight:700; }
+    
+    .driver-map-wrap.is-fs{position:fixed;inset:0;z-index:9999;background:#14110F;padding:10px;display:flex;flex-direction:column;gap:8px}
+    .driver-map-wrap.is-fs #driverErbilMap{flex:1;height:100%!important;border-radius:14px}
+    #driverRouteInfo{display:none;background:#25201D;border:1px solid #F37A1F;border-radius:12px;padding:10px 12px;color:#fff;font-size:12px;line-height:1.65;max-height:145px;overflow:auto}
+
+</style>
+</head>
+<body>
+<main class="container">
+    <header class="header">
+        <div class="brand-row">
+            <div class="brand-icon">QF</div>
+            <div>
+                <div class="brand-name">QAMISHLO DELIVERY</div>
+                <div class="brand-subtitle">Fast • Reliable • Professional</div>
+            </div>
+        </div>
+        <div class="welcome">Welcome back 👋</div>
+        <div class="worker-name">@Model.WorkerName</div>
+        <div class="header-bottom">
+            <div class="shift-label">🛵 Delivery dashboard</div>
+            <div class="shift-label">● Active session</div>
+            <div class="sound-picker-row">
+                <label for="driverSoundSelect" style="font-size:12px;color:#FFB879;font-weight:800">🔔 صوت التنبيه:</label>
+                <select id="driverSoundSelect" class="sound-select">
+                    <option value="chime">جرس التوصيل (افتراضي)</option>
+                    <option value="loud">رنّة قوية مزدوجة</option>
+                    <option value="pulse">نغمة سريعة</option>
+                    <option value="soft">نغمة هادئة</option>
+                    <option value="mute">صامت</option>
+                </select>
+                <button type="button" class="map-mode-pill" onclick="testDriverSound()">🔊 تجربة</button>
+            </div>
+        </div>
+    </header>
+
+    @if (TempData["StatusSuccess"] != null)
+    {
+        <div class="message success" role="status">✅ @TempData["StatusSuccess"]</div>
+    }
+    @if (TempData["StatusError"] != null)
+    {
+        <div class="message error" role="alert">❌ @TempData["StatusError"]</div>
+    }
+
+    <div class="section-title">Today's Overview</div>
+    <div class="section-subtitle">A quick look at your delivery activity.</div>
+
+    <section class="stats">
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-title">الطلبات المعيّنة</div><div class="stat-number">@Model.AssignedOrdersCount</div></div>
+        <div class="stat-card"><div class="stat-icon">🛵</div><div class="stat-title">قيد التوصيل</div><div class="stat-number">@Model.ActiveDeliveriesCount</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-title">تم توصيلها اليوم</div><div class="stat-number">@Model.DeliveredOrdersToday</div></div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-title">إجمالي اليوم</div><div class="stat-number stat-money">@Model.TotalAmountToday.ToString("N0") د.ع</div></div>
+    </section>
+
+    <div style="display:grid;gap:10px;margin-bottom:20px">
+        <form method="get">
+            <button type="submit" class="refresh-button">↻ تحديث اللوحة والطلبات</button>
+        </form>
+        <a href="/Reports" class="refresh-button">📊 اليومي السجل والتقارير &amp; سجل الطلبات المُسلّمة</a>
+    </div>
+
+    <div class="section-title">طلباتي النشطة</div>
+    <div class="section-subtitle">عرض تفاصيل الطلب وتحديث حالته أو تحويله لعامل آخر.</div>
+
+    <nav class="order-filters" aria-label="Filter orders">
+        <button type="button" class="filter-button active" data-filter="All">كل الطلبات</button>
+        <button type="button" class="filter-button" data-filter="New">جديد</button>
+        <button type="button" class="filter-button" data-filter="Preparing">قيد التحضير</button>
+        <button type="button" class="filter-button" data-filter="Ready">جاهز</button>
+        <button type="button" class="filter-button" data-filter="OutForDelivery">بالطريق</button>
+    </nav>
+
+    @if (Model.Orders.Count == 0)
+    {
+        <div class="empty">
+            <div class="empty-icon">@(string.IsNullOrWhiteSpace(Model.OrdersLoadError) ? "📦" : "⚠️")</div>
+            <div class="empty-title">@(string.IsNullOrWhiteSpace(Model.OrdersLoadError) ? "لا توجد طلبات نشطة مسندة إليك حالياً" : "Orders could not be loaded")</div>
+            <div class="empty-text">@(string.IsNullOrWhiteSpace(Model.OrdersLoadError) ? "عندما يسند المطعم طلباً جديداً إليك سيظهر هنا فوراً. اضغط تحديث للتحقق مجدداً." : Model.OrdersLoadError)</div>
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model.Orders)
+        {
+            string latitude = "";
+            string longitude = "";
+            string location = "";
+
+            if (!string.IsNullOrWhiteSpace(order.Notes))
+            {
+                var locationMatch = System.Text.RegularExpressions.Regex.Match(
+                    order.Notes,
+                    @"Location:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                if (locationMatch.Success)
+                {
+                    latitude = locationMatch.Groups[1].Value;
+                    longitude = locationMatch.Groups[2].Value;
+                    location = $"{latitude},{longitude}";
+                }
+            }
+
+            var safeStatus = order.Status ?? "";
+
+            <article class="order-card" data-order-status="@safeStatus">
+                <div class="order-top">
+                    <div><div class="order-label">Order number</div><div class="order-number">@order.DisplayOrderCode</div></div>
+                    <span class="status" data-status="@safeStatus">@safeStatus</span>
+                </div>
+
+                <div class="order-info">
+                    <div class="info"><span class="info-icon">👤</span><div class="info-content"><strong>الزبون:</strong> @order.CustomerName</div></div>
+                    @if (!string.IsNullOrWhiteSpace(order.CustomerPhone))
+                    {
+                        <div class="info"><span class="info-icon">📞</span><div class="info-content"><strong>الهاتف:</strong> @order.CustomerPhone</div></div>
+                    }
+                    <div class="info"><span class="info-icon">🛵</span><div class="info-content"><strong>النوع:</strong> @order.OrderType</div></div>
+                    @if (!string.IsNullOrWhiteSpace(order.ZoneName))
+                    {
+                        <div class="info"><span class="info-icon">📍</span><div class="info-content"><strong>المنطقة:</strong> @order.ZoneName</div></div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(order.DeliveryAddress))
+                    {
+                        <div class="info"><span class="info-icon">🏠</span><div class="info-content"><strong>العنوان:</strong> @order.DeliveryAddress</div></div>
+                    }
+                    <div class="info"><span class="info-icon">🕒</span><div class="info-content"><strong>وقت الطلب:</strong> @order.OrderDate.ToString("yyyy-MM-dd HH:mm")</div></div>
+                    @if (order.Items != null && order.Items.Count > 0)
+                    {
+                        <div class="items-box">
+                            <div class="items-box-title">🍔 تفاصيل أصناف الطلب :</div>
+                            @foreach (var item in order.Items)
+                            {
+                                <div>• @item.ProductName × @item.Quantity — @item.TotalPrice.ToString("N0") د.ع</div>
+                            }
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(order.CleanNotes))
+                    {
+                        <div class="info"><span class="info-icon">📝</span><div class="info-content"><strong>Notes:</strong> @order.CleanNotes</div></div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(location))
+                {
+                    <section class="location-box">
+                        <div class="location-header">
+                            <div class="location-icon">📍</div>
+                            <div><div class="location-title">موقع الزبون</div><div class="location-subtitle">إحداثيات GPS</div></div>
+                        </div>
+                        <div class="location-coordinates">@latitude, @longitude</div>
+                        <div class="location-buttons">
+                            <button type="button" class="waze-button" data-action="waze" data-lat="@latitude" data-lon="@longitude">
+                                <svg class="btn-svg-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="11" fill="#33CCFF"/>
+                                    <path d="M18.2 12.1c0-3.3-2.7-5.8-6.1-5.8-3.4 0-6.1 2.5-6.1 5.8 0 1.4.5 2.6 1.3 3.6-.3.7-.9 1.2-1.7 1.4.8.5 1.9.7 3 .5.9.4 2.1.6 3.5.6 3.4 0 6.1-2.7 6.1-6.1z" fill="#FFF"/>
+                                    <circle cx="10.2" cy="11.2" r="1" fill="#202124"/>
+                                    <circle cx="14.2" cy="11.2" r="1" fill="#202124"/>
+                                    <path d="M9.8 13.5c.6.8 1.4 1.2 2.4 1.2s1.8-.4 2.4-1.2" stroke="#202124" stroke-width="1.3" stroke-linecap="round"/>
+                                    <circle cx="9.2" cy="17.6" r="1.5" fill="#202124"/>
+                                    <circle cx="15.2" cy="17.6" r="1.5" fill="#202124"/>
+                                </svg>
+                                <span>التوجيه عبر Waze</span>
+                            </button>
+                            <button type="button" class="waze-button" style="background:linear-gradient(120deg,#F37A1F,#FF9B38);color:#14110F" data-action="focus-map" onclick="openQamishloMapNav(this)" data-lat="@latitude" data-lon="@longitude" data-customer="@order.CustomerName" data-order="@order.DisplayOrderCode">🧭 توصيل عبر خريطة قامشلو (شاشة كاملة)</button>
+                            <button type="button" class="copy-location-button" data-action="copy-location" data-location="@location">📋 نسخ الموقع</button>
+                        </div>
+                    </section>
+                }
+                else
+                {
+                    <div class="location-missing">📍 لم يتم تحديد موقع الزبون على الخريطة</div>
+                }
+
+                <div class="total"><div class="total-label">إجمالي الطلب</div><div class="total-value">@order.TotalAmount.ToString("N0") د.ع</div></div>
+
+                <div class="buttons">
+                    @if (!string.IsNullOrWhiteSpace(order.CustomerPhone))
+                    {
+                        <a href="@Model.GetWhatsAppUrl(order.CustomerPhone)" target="_blank" rel="noopener noreferrer" class="button whatsapp">
+                            <svg class="btn-svg-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <circle cx="12" cy="12" r="11" fill="#25D366"/>
+                                <path d="M12.1 5.8a6.2 6.2 0 0 0-5.4 9.3L5.8 18.3l3.3-.9a6.2 6.2 0 1 0 3-11.6zm3.6 8.8c-.15.42-.88.8-1.22.85-.31.05-.71.07-1.15-.07-.27-.09-.61-.2-1.05-.39-1.85-.8-3.06-2.67-3.15-2.79-.09-.12-.75-1-.75-1.91s.47-1.35.64-1.54c.17-.18.37-.23.49-.23h.36c.11 0 .27-.04.42.32.15.37.52 1.28.57 1.37.05.09.08.2.02.32-.06.12-.09.2-.18.31-.09.11-.2.24-.28.32-.09.09-.19.19-.08.37.11.18.48.79 1.03 1.28.71.63 1.3.83 1.49.92.18.09.29.08.4-.05.11-.12.46-.54.58-.72.12-.18.25-.15.42-.09.17.06 1.08.51 1.26.6.18.09.31.14.35.22.05.08.05.45-.1.87z" fill="#FFF"/>
+                            </svg>
+                            <span>واتساب الزبون</span>
+                        </a>
+                    }
+                    @if (order.Status == "New")
+                    {
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Preparing" />
+                            <button type="submit" class="button accept">✓ Accept order</button>
+                        </form>
+                    }
+                    @if (order.Status == "Preparing")
+                    {
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Ready" />
+                            <button type="submit" class="button ready">📦 Picked up</button>
+                        </form>
+                    }
+                    @if (order.Status == "Ready" || order.Status == "OutForDelivery")
+                    {
+                        <form method="post" asp-page-handler="Status">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="orderID" value="@order.OrderID" />
+                            <input type="hidden" name="status" value="Delivered" />
+                            <button type="submit" class="button delivered">
+                                <svg class="btn-svg-check-lg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="11" fill="#FFFFFF"/>
+                                    <path d="M7.2 12.3l3.2 3.3 6.5-6.8" stroke="#188044" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>تم التوصيل</span>
+                            </button>
+                        </form>
+                    }
+
+                    <button type="button" class="button details"
+                            data-action="details"
+                            data-order-id="@order.DisplayOrderCode"
+                            data-customer="@order.CustomerName"
+                            data-phone="@order.CustomerPhone"
+                            data-address="@order.DeliveryAddress"
+                            data-items="@order.ItemsSummaryText"
+                            data-notes="@order.CleanNotes"
+                            data-lat="@latitude"
+                            data-lon="@longitude">👁 عرض التفاصيل</button>
+
+                    @if (order.Status != "Delivered")
+                    {
+                        <button type="button" class="button transfer"
+                                data-action="transfer"
+                                data-order-id="@order.OrderID">🔄 تحويل الطلب لعامل آخر</button>
+                    }
+                </div>
+            </article>
+        }
+
+        <div id="filteredEmpty" class="empty empty-filter">
+            <div class="empty-icon">🔎</div>
+            <div class="empty-title">No orders in this category</div>
+            <div class="empty-text">Choose another status to see your orders.</div>
+        </div>
+    }
+
+    <a href="/Logout" class="logout">🚪 تسجيل الخروج</a>
+</main>
+
+<div id="detailsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+        <div class="modal-heading"><div id="modalTitle" class="modal-title">Order details</div></div>
+        <div id="modalBody"></div>
+        <button type="button" class="close-button" onclick="closeDetails()">Close details</button>
+    </div>
+</div>
+<div id="transferModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="transferTitle">
+    <div class="modal-content">
+        <div class="modal-heading"><div id="transferTitle" class="modal-title">Transfer delivery order</div></div>
+        @if (Model.TransferWorkers.Count == 0)
+        {
+            <div class="message error">No other active delivery workers are available to receive this order.</div>
+            <button type="button" class="close-button" onclick="closeTransfer()">Close</button>
+        }
+        else
+        {
+            <form method="post" asp-page-handler="Transfer" class="transfer-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="transferOrderID" name="orderID" />
+                <div>
+                    <label for="newWorkerID">Choose the receiving worker</label>
+                    <select id="newWorkerID" name="newWorkerID" required>
+                        <option value="">Select a worker</option>
+                        @foreach (var worker in Model.TransferWorkers)
+                        {
+                            <option value="@worker.DeliveryWorkerID">@(string.IsNullOrWhiteSpace(worker.Phone) ? worker.FullName : $"{worker.FullName} — {worker.Phone}")</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="transferNotes">Note (optional)</label>
+                    <textarea id="transferNotes" name="notes" maxlength="500" placeholder="Optional reason or handover note"></textarea>
+                </div>
+                <button type="submit" class="transfer-submit">Confirm transfer</button>
+                <button type="button" class="close-button" onclick="closeTransfer()">Cancel</button>
+            </form>
+        }
+    </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+    function openWaze(latitude, longitude) {
+        if (!latitude || !longitude) { showToast("Customer location is not available."); return; }
+        const lat = Number(latitude), lon = Number(longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+            showToast("The customer coordinates are invalid."); return;
+        }
+        window.location.href = "https://waze.com/ul?ll=" + encodeURIComponent(lat + "," + lon) + "&navigate=yes";
+    }
+
+    async function copyLocation(location) {
+        if (!location) return;
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(location);
+                showToast("Customer location copied.");
+            } else {
+                window.prompt("Copy customer coordinates:", location);
+            }
+        } catch { window.prompt("Copy customer coordinates:", location); }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        if (showToast.timer) clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    function appendLine(parent, label, value, icon) {
+        if (value === null || value === undefined || value === "") return;
+        const line = document.createElement("div");
+        line.className = "modal-line";
+        const labelNode = document.createElement("strong");
+        labelNode.textContent = icon + " " + label + ": ";
+        const valueNode = document.createElement("span");
+        valueNode.textContent = value;
+        line.append(labelNode, valueNode);
+        parent.appendChild(line);
+    }
+
+    function showDetails(button) {
+        const body = document.getElementById("modalBody");
+        body.replaceChildren();
+        appendLine(body, "Order", button.dataset.orderId, "📦");
+        appendLine(body, "Customer", button.dataset.customer, "👤");
+        appendLine(body, "Phone", button.dataset.phone, "📞");
+        appendLine(body, "Address", button.dataset.address, "📍");
+        appendLine(body, "Items", button.dataset.items, "🍔");
+        appendLine(body, "Notes", button.dataset.notes, "📝");
+
+        const lat = button.dataset.lat, lon = button.dataset.lon;
+        if (lat && lon) {
+            const box = document.createElement("div");
+            box.className = "modal-location";
+            const title = document.createElement("div");
+            title.className = "modal-location-title";
+            title.textContent = "📍 Customer location";
+            const coords = document.createElement("div");
+            coords.className = "modal-location-value";
+            coords.textContent = lat + ", " + lon;
+            const waze = document.createElement("button");
+            waze.type = "button";
+            waze.className = "modal-waze";
+            waze.innerHTML = `<svg class="btn-svg-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#33CCFF"/><path d="M18.2 12.1c0-3.3-2.7-5.8-6.1-5.8-3.4 0-6.1 2.5-6.1 5.8 0 1.4.5 2.6 1.3 3.6-.3.7-.9 1.2-1.7 1.4.8.5 1.9.7 3 .5.9.4 2.1.6 3.5.6 3.4 0 6.1-2.7 6.1-6.1z" fill="#FFF"/><circle cx="10.2" cy="11.2" r="1" fill="#202124"/><circle cx="14.2" cy="11.2" r="1" fill="#202124"/><path d="M9.8 13.5c.6.8 1.4 1.2 2.4 1.2s1.8-.4 2.4-1.2" stroke="#202124" stroke-width="1.3" stroke-linecap="round"/><circle cx="9.2" cy="17.6" r="1.5" fill="#202124"/><circle cx="15.2" cy="17.6" r="1.5" fill="#202124"/></svg><span>التوجيه عبر Waze</span>`;
+            waze.addEventListener("click", () => openWaze(lat, lon));
+            box.append(title, coords, waze);
+            body.appendChild(box);
+        } else {
+            appendLine(body, "Location", "Not provided", "📍");
+        }
+        document.getElementById("detailsModal").style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeDetails() {
+        document.getElementById("detailsModal").style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+
+    function openTransfer(orderId) {
+        const orderInput = document.getElementById("transferOrderID");
+        const modal = document.getElementById("transferModal");
+        if (!modal) return;
+        if (orderInput) orderInput.value = orderId;
+        const select = document.getElementById("newWorkerID");
+        if (select) select.value = "";
+        const notes = document.getElementById("transferNotes");
+        if (notes) notes.value = "";
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeTransfer() {
+        const modal = document.getElementById("transferModal");
+        if (modal) modal.style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+    document.getElementById("detailsModal").addEventListener("click", function(event) {
+        if (event.target === this) closeDetails();
+    });
+    const transferModal = document.getElementById("transferModal");
+    if (transferModal) {
+        transferModal.addEventListener("click", function(event) {
+            if (event.target === this) closeTransfer();
+        });
+    }
+
+    document.addEventListener("click", function(event) {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+        if (target.dataset.action === "waze") openWaze(target.dataset.lat, target.dataset.lon);
+        else if (target.dataset.action === "copy-location") copyLocation(target.dataset.location);
+        else if (target.dataset.action === "details") showDetails(target);
+        else if (target.dataset.action === "transfer") {
+            openTransfer(target.dataset.orderId);
+        }
+    });
+
+    document.querySelectorAll(".filter-button").forEach(button => {
+        button.addEventListener("click", function() {
+            const filter = this.dataset.filter;
+            let visibleCount = 0;
+            document.querySelectorAll(".filter-button").forEach(item => item.classList.toggle("active", item === this));
+            document.querySelectorAll(".order-card").forEach(card => {
+                const visible = filter === "All" || card.dataset.orderStatus === filter;
+                card.style.display = visible ? "" : "none";
+                if (visible) visibleCount++;
+            });
+            const empty = document.getElementById("filteredEmpty");
+            if (empty) empty.style.display = visibleCount === 0 ? "block" : "none";
+        });
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") { closeDetails(); closeTransfer(); }
+    });
+
+    window.setInterval(() => {
+        const modalOpen = document.getElementById("transferModal")?.style.display === "flex" ||
+            document.getElementById("detailsModal")?.style.display === "flex";
+        if (!modalOpen && !document.hidden) window.location.reload();
+    }, 30000);
+
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function() {
+            navigator.serviceWorker.register("/service-worker.js", { scope: "/" })
+                .catch(error => console.error("Service worker registration failed:", error));
+        });
+    }
+</script>
+
+
+<script>
+    // 1. CUSTOM SOUND SYNTHESIZER & NOTIFICATION POLLER
+    const SOUND_KEY = 'qamishlo.delivery.sound.v1';
+    const soundSelect = document.getElementById('driverSoundSelect');
+    if (soundSelect) {
+        soundSelect.value = localStorage.getItem(SOUND_KEY) || 'chime';
+        soundSelect.addEventListener('change', () => {
+            localStorage.setItem(SOUND_KEY, soundSelect.value);
+            showDriverSystemNotif('طلب توصيل جديد — قامشلو 🛵', 'وصلك طلب توصيل جديد الآن!'); playDriverTone(soundSelect.value);
+        });
+    }
+    function playDriverTone(mode) {
+        if (mode === 'mute') return;
+        try {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            const ctx = new Ctx();
+            const presets = {
+                chime: [[880, 0, 0.16], [1174, 0.18, 0.24]],
+                loud: [[1046, 0, 0.14], [1318, 0.16, 0.14], [1567, 0.32, 0.25]],
+                pulse: [[740, 0, 0.1], [740, 0.14, 0.1], [987, 0.28, 0.2]],
+                soft: [[523, 0, 0.22], [659, 0.24, 0.28]]
+            };
+            const notes = presets[mode] || presets.chime;
+            notes.forEach(([freq, start, dur]) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = mode === 'soft' ? 'sine' : 'triangle';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.28, ctx.currentTime + start);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + start);
+                osc.stop(ctx.currentTime + start + dur);
+            });
+        } catch {}
+    }
+    window.testDriverSound = function() {
+        const mode = soundSelect ? soundSelect.value : 'chime';
+        playDriverTone(mode);
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+        showToast('🔔 تم اختبار صوت تنبيه الطلبات');
+    };
+
+    // Poll active orders every 8s and play sound + browser alert when a NEW order arrives
+    let knownOrderIds = new Set([...document.querySelectorAll('[data-order-id]')].map(el => Number(el.dataset.orderId)).filter(n => n > 0));
+    setInterval(async () => {
+        try {
+            const resp = await fetch('/Index?handler=ActiveOrdersJson');
+            if (!resp.ok) return;
+            const data = await resp.json();
+            if (data && data.success && Array.isArray(data.orderIds)) {
+                const newOnes = data.orderIds.filter(id => !knownOrderIds.has(id));
+                if (newOnes.length > 0) {
+                    newOnes.forEach(id => knownOrderIds.add(id));
+                    playDriverTone(localStorage.getItem(SOUND_KEY) || 'chime');
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification('🛵 طلب توصيل جديد — قامشلو', { body: `تم إسناد ${newOnes.length} طلب جديد لك الآن!` });
+                    }
+                    showToast(`🔔 وصل طلب توصيل جديد! جاري تحديث الصفحة...`);
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            }
+        } catch {}
+    }, 8000);
+
+    // 2. CUSTOM QAMISHLO ERBIL LIVE GPS MAP & AUTOMATIC LOCATION UPLOAD
+    const REST_LAT = @Model.RestaurantLatitude.ToString(System.Globalization.CultureInfo.InvariantCulture), REST_LNG = @Model.RestaurantLongitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    let driverMap = null, driverMarker = null, activeRouteLine = null;
+    let driverLat = REST_LAT, driverLng = REST_LNG, hasRealGps = false;
+    let dmDark, dmStreets, dmSat;
+
+    function initDriverErbilMap() {
+        if (driverMap) return;
+        const el = document.getElementById('driverErbilMap');
+        if (!el || typeof L === 'undefined') return;
+        const erbilBounds = L.latLngBounds([35.92, 43.70], [36.45, 44.35]);
+        driverMap = L.map(el, { minZoom: 11, maxZoom: 20, maxBounds: erbilBounds, maxBoundsViscosity: 0.85 }).setView([REST_LAT, REST_LNG], 14);
+        dmDark = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&hl=ar&x={x}&y={y}&z={z}', { subdomains: ['0','1','2','3'], maxZoom: 20, className: 'qamishlo-dark-tiles' });
+        dmStreets = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&hl=ar&x={x}&y={y}&z={z}', { subdomains: ['0','1','2','3'], maxZoom: 20 });
+        dmSat = L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&hl=ar&x={x}&y={y}&z={z}', { subdomains: ['0','1','2','3'], maxZoom: 20 });
+        dmDark.addTo(driverMap);
+
+        const restIcon = L.divIcon({ className: '', iconSize: [38, 38], iconAnchor: [19, 19], html: '<div style="width:38px;height:38px;border-radius:50%;background:#25201D;border:2.5px solid #F37A1F;display:grid;place-items:center;font-size:18px;box-shadow:0 4px 12px #0009">🍔</div>' });
+        L.marker([REST_LAT, REST_LNG], { icon: restIcon }).addTo(driverMap).bindPopup('🍔 مطعم قامشلو');
+
+        const motoIcon = L.divIcon({ className: '', iconSize: [42, 42], iconAnchor: [21, 21], html: '<div style="width:42px;height:42px;border-radius:50%;background:#F37A1F;border:3px solid #FFF;display:grid;place-items:center;font-size:20px;box-shadow:0 4px 14px #000a">🛵</div>' });
+        driverMarker = L.marker([REST_LAT, REST_LNG], { icon: motoIcon }).addTo(driverMap).bindPopup('🛵 موقعك الحالي');
+
+        // Plot all active customers from order cards
+        const bounds = [[REST_LAT, REST_LNG]];
+        document.querySelectorAll('[data-action="focus-map"]').forEach(btn => {
+            const la = Number(btn.dataset.lat), ln = Number(btn.dataset.lon);
+            if (!Number.isFinite(la) || !Number.isFinite(ln)) return;
+            const cIcon = L.divIcon({ className: '', iconSize: [36, 36], iconAnchor: [18, 34], html: '<div style="width:36px;height:36px;border-radius:50%;background:#28A75E;border:2.5px solid #FFF;display:grid;place-items:center;font-size:17px;box-shadow:0 4px 12px #0009">📍</div>' });
+            L.marker([la, ln], { icon: cIcon }).addTo(driverMap).bindPopup(`📍 الزبون: ${btn.dataset.customer || ''} (${btn.dataset.order || ''})`);
+            bounds.push([la, ln]);
+        });
+        if (bounds.length > 1) driverMap.fitBounds(L.latLngBounds(bounds).pad(0.22));
+    }
+
+    window.setDriverMapMode = function(mode) {
+        if (!driverMap) return;
+        [dmDark, dmStreets, dmSat].forEach(l => { if (driverMap.hasLayer(l)) driverMap.removeLayer(l); });
+        ['dmDark','dmStreets','dmSat'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+        if (mode === 'streets') { dmStreets.addTo(driverMap); document.getElementById('dmStreets')?.classList.add('active'); }
+        else if (mode === 'sat') { dmSat.addTo(driverMap); document.getElementById('dmSat')?.classList.add('active'); }
+        else { dmDark.addTo(driverMap); document.getElementById('dmDark')?.classList.add('active'); }
+    };
+
+    window.centerOnDriver = function() {
+        if (driverMap) driverMap.setView([driverLat, driverLng], 16, { animate: true });
+    };
+
+    async function pushGpsToServer(lat, lng) {
+        try {
+            const resp = await fetch('/Index?handler=UpdateLocation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ latitude: lat, longitude: lng })
+            });
+            const pill = document.getElementById('gpsLiveStatus');
+            if (pill) {
+                pill.textContent = resp.ok
+                    ? `🟢 موقعك مباشر (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+                    : '⚠️ تعذر إرسال الموقع للسيرفر';
+            }
+        } catch {}
+    }
+
+    window.sendDriverGpsNow = function() {
+        if (!navigator.geolocation) return showToast('المتصفح لا يدعم GPS');
+        navigator.geolocation.getCurrentPosition(pos => {
+            driverLat = pos.coords.latitude;
+            driverLng = pos.coords.longitude;
+            hasRealGps = true;
+            if (driverMarker) driverMarker.setLatLng([driverLat, driverLng]);
+            if (driverMap) driverMap.setView([driverLat, driverLng], 16);
+            pushGpsToServer(driverLat, driverLng);
+            showToast('✅ تم إرسال موقعك المباشر للمطعم');
+        }, () => showToast('يرجى السماح بصلاحية الموقع GPS'), { enableHighAccuracy: true, timeout: 12000 });
+    };
+
+    document.addEventListener('click', function(ev) {
+        const btn = ev.target.closest('[data-action="focus-map"]');
+        if (!btn) return;
+        if (!driverMap) initDriverErbilMap();
+        if (!driverMap) return;
+        const la = Number(btn.dataset.lat), ln = Number(btn.dataset.lon);
+        if (!Number.isFinite(la) || !Number.isFinite(ln)) return;
+        const wrap = document.getElementById('driverMapWrap');
+        if (wrap && !wrap.classList.contains('is-fs')) window.toggleDriverMapFullscreen();
+        if (window._activeCustPin) { try { driverMap.removeLayer(window._activeCustPin); } catch {} }
+        window._activeCustPin = L.marker([la, ln], {
+            icon: L.divIcon({ className:'', html:`<div style="width:36px;height:36px;border-radius:50%;background:#33B879;border:3px solid #fff;display:grid;place-items:center;font-size:18px;box-shadow:0 4px 12px rgba(0,0,0,.5)">🏠</div>`, iconSize:[36,36], iconAnchor:[18,18] })
+        }).addTo(driverMap).bindPopup(`<strong>🏠 ${btn.dataset.customer || 'موقع الزبون'}</strong><br>${btn.dataset.order || ''}`).openPopup();
+        setTimeout(() => { try { driverMap.invalidateSize(); } catch {} }, 180);
+        if (activeRouteLine) driverMap.removeLayer(activeRouteLine);
+        activeRouteLine = L.polyline([[driverLat, driverLng], [la, ln]], { color: '#F37A1F', weight: 5, dashArray: '8,6' }).addTo(driverMap);
+        fetch(`https://router.project-osrm.org/route/v1/driving/${driverLng},${driverLat};${ln},${la}?overview=full&geometries=geojson&steps=true`)
+            .then(r => r.json())
+            .then(data => {
+                const route = data?.routes?.[0];
+                if (!route) return;
+                const pts = route.geometry.coordinates.map(c => [c[1], c[0]]);
+                if (activeRouteLine) driverMap.removeLayer(activeRouteLine);
+                activeRouteLine = L.polyline(pts, { color: '#F37A1F', weight: 6 }).addTo(driverMap);
+                driverMap.fitBounds(activeRouteLine.getBounds().pad(0.18));
+                const km = (route.distance / 1000).toFixed(2);
+                const mins = Math.max(1, Math.round(route.duration / 60));
+                const steps = (route.legs?.[0]?.steps || []).slice(0, 6).map((s, idx) => {
+                    const m = s.maneuver?.modifier || '';
+                    const dir = m.includes('right') ? '➡️ انعطف يميناً' : m.includes('left') ? '⬅️ انعطف يساراً' : '⬆️ استمر للأمام';
+                    const road = s.name ? ` عبر ${s.name}` : '';
+                    return `${idx + 1}. ${dir}${road} (${Math.round(s.distance)} م)`;
+                }).join('<br>');
+                const box = document.getElementById('driverRouteInfo');
+                if (box) {
+                    box.style.display = 'block';
+                    box.innerHTML = `<strong style="color:#F37A1F">🧭 المسار عبر خريطة قامشلو: ${km} كم • حوالي ${mins} دقيقة</strong><br>${steps || 'اتبع الخط البرتقالي حتى موقع الزبون.'}`;
+                }
+            }).catch(() => {});
+        driverMap.fitBounds(L.latLngBounds([[driverLat, driverLng], [la, ln]]).pad(0.25));
+        document.getElementById('driverErbilMap')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    // Wake Lock + Background/Screen-Lock Recovery
+    let wakeLockSentinel = null;
+    let wakeLockWanted = localStorage.getItem('qamishlo.driver.wakelock') !== '0';
+    function updateWakeLockBtn() {
+        const b = document.getElementById('wakeLockBtn');
+        if (!b) return;
+        if (!('wakeLock' in navigator)) {
+            b.style.display = 'none';
+            return;
+        }
+        b.textContent = wakeLockSentinel ? '🔆 الشاشة نشطة للتتبع ✓' : '🔆 إبقاء الشاشة نشطة';
+        b.style.background = wakeLockSentinel ? '#F37A1F' : '#25201D';
+        b.style.color = wakeLockSentinel ? '#14110F' : '#FFB879';
+    }
+    async function requestWakeLock() {
+        if (!('wakeLock' in navigator) || !wakeLockWanted) return;
+        try {
+            wakeLockSentinel = await navigator.wakeLock.request('screen');
+            wakeLockSentinel.addEventListener('release', () => { wakeLockSentinel = null; updateWakeLockBtn(); });
+        } catch {}
+        updateWakeLockBtn();
+    }
+    window.toggleWakeLock = async function() {
+        if (wakeLockSentinel) {
+            wakeLockWanted = false;
+            localStorage.setItem('qamishlo.driver.wakelock', '0');
+            try { await wakeLockSentinel.release(); } catch {}
+            wakeLockSentinel = null;
+            updateWakeLockBtn();
+        } else {
+            wakeLockWanted = true;
+            localStorage.setItem('qamishlo.driver.wakelock', '1');
+            await requestWakeLock();
+        }
+    };
+    document.addEventListener('click', () => { if (wakeLockWanted && !wakeLockSentinel) requestWakeLock(); }, { once: true });
+
+    function flushGpsBeacon(lat, lng) {
+        if (!hasRealGps) return;
+        try {
+            const body = new URLSearchParams({ latitude: String(lat), longitude: String(lng) }).toString();
+            if (navigator.sendBeacon) {
+                const blob = new Blob([body], { type: 'application/x-www-form-urlencoded' });
+                navigator.sendBeacon('?handler=UpdateLocation', blob);
+            } else {
+                fetch('?handler=UpdateLocation', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body, keepalive: true }).catch(() => {});
+            }
+        } catch {}
+    }
+
+    
+    async function showDriverSystemNotif(title, body) {
+        try {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            if (navigator.serviceWorker) {
+                const reg = await navigator.serviceWorker.ready;
+                if (reg && reg.showNotification) {
+                    await reg.showNotification(title, { body, vibrate: [250, 100, 250], tag: 'qamishlo-drv-' + Date.now() });
+                    return;
+                }
+            }
+            new Notification(title, { body });
+        } catch {}
+    }
+
+    initDriverErbilMap();
+    setTimeout(() => { try { driverMap && driverMap.invalidateSize(); } catch {} }, 400);
+    let geoWatchId = null;
+    let lastSentAt = 0;
+    function handleGpsPos(pos, forceSend) {
+        driverLat = pos.coords.latitude;
+        driverLng = pos.coords.longitude;
+        hasRealGps = true;
+        if (driverMarker) driverMarker.setLatLng([driverLat, driverLng]);
+        const now = Date.now();
+        if (forceSend || now - lastSentAt >= 5000) {
+            lastSentAt = now;
+            pushGpsToServer(driverLat, driverLng);
+        }
+    }
+    function startGpsWatch() {
+        if (!navigator.geolocation) return;
+        if (geoWatchId !== null) {
+            try { navigator.geolocation.clearWatch(geoWatchId); } catch {}
+        }
+        geoWatchId = navigator.geolocation.watchPosition(
+            pos => handleGpsPos(pos, false),
+            () => {
+                const pill = document.getElementById('gpsLiveStatus');
+                if (pill) pill.textContent = '⚠️ فعّل صلاحية GPS لإرسال موقعك للمطعم';
+            },
+            { enableHighAccuracy: true, maximumAge: 4000, timeout: 15000 }
+        );
+    }
+    startGpsWatch();
+    requestWakeLock();
+
+    // Heartbeat every 10s so stationary drivers still stay live on restaurant map
+    setInterval(() => {
+        if (document.visibilityState === 'visible' && hasRealGps && Date.now() - lastSentAt >= 9500) {
+            lastSentAt = Date.now();
+            pushGpsToServer(driverLat, driverLng);
+        }
+    }, 10000);
+
+    // Flush immediately before lock/hide & resume instantly on unlock/wake
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            flushGpsBeacon(driverLat, driverLng);
+        } else {
+            if (wakeLockWanted) requestWakeLock();
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => handleGpsPos(pos, true), () => {}, { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+            }
+            startGpsWatch();
+        }
+    });
+    window.addEventListener('pagehide', () => flushGpsBeacon(driverLat, driverLng));
+    window.addEventListener('online', () => { if (hasRealGps) pushGpsToServer(driverLat, driverLng); });
+
+    // V8: Register Service Worker & Background Push for Closed-App Driver Alerts
+    const Q_API_BASE = 'https://qamishlorestaurantapi.miohammedomran.prod.page/';
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw-delivery.js').catch(() => {});
+    }
+    window.enableDriverBgPush = async function() {
+        const b = document.getElementById('driverBgPushBtn');
+        if (!('Notification' in window)) { alert('المتصفح لا يدعم الإشعارات.'); return; }
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') { alert('يرجى السماح بالإشعارات من إعدادات المتصفح.'); return; }
+        try {
+            const reg = await navigator.serviceWorker?.ready;
+            const cfgResp = await fetch(Q_API_BASE + 'api/push/public-config');
+            const cfg = cfgResp.ok ? await cfgResp.json() : null;
+            if (cfg?.configured && cfg.firebaseConfig?.apiKey && cfg.vapidKey && reg) {
+                const [{ initializeApp, getApps }, { getMessaging, getToken }] = await Promise.all([
+                    import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
+                    import('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js')
+                ]);
+                const fbApp = getApps().length ? getApps()[0] : initializeApp(cfg.firebaseConfig);
+                const token = await getToken(getMessaging(fbApp), { vapidKey: cfg.vapidKey, serviceWorkerRegistration: reg });
+                if (token) {
+                    await fetch(Q_API_BASE + 'api/push/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ audienceالنوع: 'driver', targetID: @Model.WorkerID, tokenOrEndpoint: token, platform: 'web' })
+                    });
+                }
+            }
+            if (b) { b.textContent = '🔔 إشعارات الخلفية مفعّلة ✓'; b.style.background = '#F37A1F'; b.style.color = '#14110F'; }
+        } catch {
+            if (b) { b.textContent = '🔔 إشعارات الخلفية مفعّلة ✓'; }
+        }
+    };
+
+
+    let _mapOrigParent = null, _mapNextSibling = null;
+    window.toggleDriverMapFullscreen = function(forceOpen) {
+        const w = document.getElementById('driverMapWrap');
+        const b = document.getElementById('driverMapFsBtn');
+        if (!w) return;
+        const wantFs = typeof forceOpen === 'boolean' ? forceOpen : !w.classList.contains('is-fs');
+        if (wantFs && !w.classList.contains('is-fs')) {
+            _mapOrigParent = w.parentNode;
+            _mapNextSibling = w.nextSibling;
+            document.body.appendChild(w);
+            w.classList.add('is-fs');
+            document.body.style.overflow = 'hidden';
+        } else if (!wantFs && w.classList.contains('is-fs')) {
+            w.classList.remove('is-fs');
+            document.body.style.overflow = '';
+            if (_mapOrigParent) _mapOrigParent.insertBefore(w, _mapNextSibling);
+        }
+        if (b) b.textContent = w.classList.contains('is-fs') ? '✕ إغلاق وتصغير الخريطة' : '⛶ تكبير الخريطة بالكامل';
+        if (!driverMap) initDriverErbilMap();
+        setTimeout(() => { try { driverMap && driverMap.invalidateSize(true); } catch {} }, 180);
+    };
+
+    window.openQamishloMapNav = function(btn) {
+        if (!btn) return;
+        const la = Number(btn.dataset.lat), ln = Number(btn.dataset.lon);
+        if (!Number.isFinite(la) || !Number.isFinite(ln)) return showToast('إحداثيات الزبون غير متوفرة');
+        window.toggleDriverMapFullscreen(true);
+        if (!driverMap) initDriverErbilMap();
+        if (!driverMap) {
+            if (typeof L === 'undefined') {
+                showToast('جاري تجهيز خريطة أربيل...');
+                const s = document.createElement('script');
+                s.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+                s.onload = () => { initDriverErbilMap(); setTimeout(() => window.openQamishloMapNav(btn), 120); };
+                s.onerror = () => showToast('تعذر تحميل الخريطة — تحقق من الإنترنت.');
+                document.head.appendChild(s);
+                return;
+            }
+            initDriverErbilMap();
+            if (!driverMap) return showToast('تعذر تهيئة الخريطة، حاول مرة أخرى.');
+        }
+        if (window._activeCustPin) { try { driverMap.removeLayer(window._activeCustPin); } catch {} }
+        window._activeCustPin = L.marker([la, ln], {
+            icon: L.divIcon({ className:'', html:`<div style="width:38px;height:38px;border-radius:50%;background:#33B879;border:3px solid #fff;display:grid;place-items:center;font-size:19px;box-shadow:0 4px 14px rgba(0,0,0,.6)">🏠</div>`, iconSize:[38,38], iconAnchor:[19,19] })
+        }).addTo(driverMap).bindPopup(`<strong>🏠 ${btn.dataset.customer || 'موقع الزبون'}</strong><br>${btn.dataset.order || ''}`).openPopup();
+        if (activeRouteLine) { try { driverMap.removeLayer(activeRouteLine); } catch {} }
+        activeRouteLine = L.polyline([[driverLat, driverLng], [la, ln]], { color: '#F37A1F', weight: 5, dashArray: '8,6' }).addTo(driverMap);
+        driverMap.fitBounds(L.latLngBounds([[driverLat, driverLng], [la, ln]]).pad(0.22));
+        fetch(`https://router.project-osrm.org/route/v1/driving/${driverLng},${driverLat};${ln},${la}?overview=full&geometries=geojson&steps=true`)
+            .then(r => r.json())
+            .then(data => {
+                const route = data?.routes?.[0];
+                if (!route) return;
+                const pts = route.geometry.coordinates.map(c => [c[1], c[0]]);
+                if (activeRouteLine) driverMap.removeLayer(activeRouteLine);
+                activeRouteLine = L.polyline(pts, { color: '#F37A1F', weight: 6 }).addTo(driverMap);
+                driverMap.fitBounds(activeRouteLine.getBounds().pad(0.18));
+                const km = (route.distance / 1000).toFixed(2);
+                const mins = Math.max(1, Math.round(route.duration / 60));
+                const steps = (route.legs?.[0]?.steps || []).slice(0, 6).map((s, idx) => {
+                    const m = s.maneuver?.modifier || '';
+                    const dir = m.includes('right') ? '➡️ انعطف يميناً' : m.includes('left') ? '⬅️ انعطف يساراً' : '⬆️ استمر للأمام';
+                    const road = s.name ? ` عبر ${s.name}` : '';
+                    return `${idx + 1}. ${dir}${road} (${Math.round(s.distance)} م)`;
+                }).join('<br>');
+                const box = document.getElementById('driverRouteInfo');
+                if (box) {
+                    box.style.display = 'block';
+                    box.innerHTML = `<strong style="color:#F37A1F">🧭 المسار عبر خريطة قامشلو: ${km} كم • حوالي ${mins} دقيقة</strong><br>${steps || 'اتبع الخط البرتقالي حتى موقع الزبون.'}`;
+                }
+            }).catch(() => {});
+    };
+
+
+    // Auto-request browser notification permission on first tap so background alerts work seamlessly
+    document.addEventListener('click', function _askNotifOnce() {
+        try {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().catch(() => {});
+            }
+        } catch {}
+        document.removeEventListener('click', _askNotifOnce);
+    }, { once: true });
+
+</script>
+</body>
+</html>
